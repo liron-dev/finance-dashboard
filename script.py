@@ -12,7 +12,7 @@ from io import StringIO
 import pandas as pd, requests, yfinance as yf
 
 # ── Config ────────────────────────────────────────────────────────────────────
-WORKERS, MAX_RETRIES, RETRY_DELAY = 8, 2, 3
+WORKERS, MAX_RETRIES, RETRY_DELAY = 4, 2, 3
 STOCK_NS = uuid.UUID("b1a8c3f0-9d2e-4f71-8e55-1a3c6d8e9f20")
 METRIC_COLS = ["price", "gross_margin", "roic", "fcf_margin", "int_coverage", "pe_ratio"]
 EST_INTEREST_RATE = 0.05   # fallback rate when interest data missing but debt exists
