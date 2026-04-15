@@ -1,0 +1,28 @@
+name: Daily S&P 500 Metrics
+
+on:
+  schedule:
+    # 6:00 PM Israel (IDT, UTC+3) = 15:00 UTC.  Mon–Fri only.
+    # In winter (IST, UTC+2) this fires at 5 PM local.
+    # US market closes 4 PM ET — prices here are intraday, not closing.
+    # For closing prices, change to:  cron: '0 21 * * 1-5'
+    - cron: '0 15 * * 1-5'
+  workflow_dispatch: # manual trigger button in GitHub UI
+
+jobs:
+  fetch-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - run: pip install -r requirements.txt
+
+      - run: python script.py --push
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
