@@ -8,11 +8,16 @@ node_modules/
 .env
 .env.local
 .env.*.local
+.env.keys
 
 # Build outputs
 .next/
 dist/
 out/
+
+# Supabase
+supabase/.branches
+supabase/.temp
 
 # Misc
 .DS_Store
