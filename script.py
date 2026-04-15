@@ -12,7 +12,8 @@ from io import StringIO
 import pandas as pd, requests, yfinance as yf
 
 # ── Config ────────────────────────────────────────────────────────────────────
-WORKERS, MAX_RETRIES, RETRY_DELAY = 4, 2, 3
+WORKERS, MAX_RETRIES, RETRY_DELAY = 2, 2, 3
+BATCH_SIZE, BATCH_PAUSE = 50, 5  # pause 5s every 50 tickers to avoid rate limits
 STOCK_NS = uuid.UUID("b1a8c3f0-9d2e-4f71-8e55-1a3c6d8e9f20")
 METRIC_COLS = ["price", "gross_margin", "roic", "fcf_margin", "int_coverage", "pe_ratio"]
 EST_INTEREST_RATE = 0.05   # fallback rate when interest data missing but debt exists
@@ -126,20 +127,26 @@ def fetch_metrics(symbol: str) -> dict:
             else: print(f"  [!] {symbol}: {e}", file=sys.stderr)
     return row
 
-# ── 4. Build DataFrame (parallel) ────────────────────────────────────────────
+# ── 4. Build DataFrame (batched + parallel) ─────────────────────────────────
 def build_df(tickers: list[str]) -> pd.DataFrame:
     results: dict[str, dict] = {}
     total = len(tickers)
-    print(f"\nFetching {total} tickers ({WORKERS} workers) …\n", flush=True)
-    t0 = time.monotonic()
-    with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-        futures = {pool.submit(fetch_metrics, sym): sym for sym in tickers}
-        for i, future in enumerate(as_completed(futures), 1):
-            sym = futures[future]
-            r = future.result()
-            results[sym] = r
-            filled = sum(1 for k in METRIC_COLS if r[k] is not None)
-            print(f"  {i:>3}/{total}  {sym:<6}  {filled}/6", flush=True)
+    print(f"\nFetching {total} tickers ({WORKERS} workers, batches of {BATCH_SIZE}) …\n", flush=True)
+    t0, done = time.monotonic(), 0
+    for batch_start in range(0, total, BATCH_SIZE):
+        batch = tickers[batch_start : batch_start + BATCH_SIZE]
+        if batch_start > 0:
+            print(f"  — pausing {BATCH_PAUSE}s …", flush=True)
+            time.sleep(BATCH_PAUSE)
+        with ThreadPoolExecutor(max_workers=WORKERS) as pool:
+            futures = {pool.submit(fetch_metrics, sym): sym for sym in batch}
+            for future in as_completed(futures):
+                sym = futures[future]
+                r = future.result()
+                results[sym] = r
+                done += 1
+                filled = sum(1 for k in METRIC_COLS if r[k] is not None)
+                print(f"  {done:>3}/{total}  {sym:<6}  {filled}/6", flush=True)
     elapsed = time.monotonic() - t0
     print(f"\nDone in {elapsed:.0f}s  ({elapsed / total:.1f}s/ticker)", flush=True)
     return pd.DataFrame([results[s] for s in tickers])
