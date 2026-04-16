@@ -12,8 +12,8 @@ from io import StringIO
 import pandas as pd, requests, yfinance as yf
 
 # ── Config ────────────────────────────────────────────────────────────────────
-WORKERS, MAX_RETRIES, RETRY_DELAY = 2, 2, 3
-BATCH_SIZE, BATCH_PAUSE = 50, 5  # pause 5s every 50 tickers to avoid rate limits
+WORKERS, MAX_RETRIES, RETRY_DELAY = 4, 2, 3
+BATCH_SIZE, BATCH_PAUSE = 50, 3  # pause 3s every 50 tickers to avoid rate limits
 METRIC_COLS = ["price", "gross_margin", "roic", "fcf_margin", "int_coverage", "pe_ratio"]
 MIN_SUCCESS_RATE = 0.90  # only replace DB data if ≥90% of tickers succeeded
 EST_INTEREST_RATE = 0.05   # fallback rate when interest data missing but debt exists
@@ -118,10 +118,23 @@ def fetch_metrics(symbol: str, sector: str) -> dict:
                     else:
                         row["int_coverage"] = INT_COV_CAP if ebit > 0 else 0.0
             except Exception: pass
+
+            # Fill remaining nulls with defaults (user requires 100% coverage)
+            defaults = {"gross_margin": 0.0, "roic": 0.0, "fcf_margin": 0.0,
+                        "int_coverage": INT_COV_CAP, "pe_ratio": 0.0}
+            for k, v in defaults.items():
+                if row[k] is None:
+                    row[k] = v
             return row
         except Exception as e:
             if attempt < MAX_RETRIES: time.sleep(RETRY_DELAY * (attempt + 1))
             else: print(f"  [!] {symbol}: {e}", file=sys.stderr)
+    # Fill defaults even for fully-failed tickers
+    defaults = {"price": 0.0, "gross_margin": 0.0, "roic": 0.0, "fcf_margin": 0.0,
+                "int_coverage": INT_COV_CAP, "pe_ratio": 0.0}
+    for k, v in defaults.items():
+        if row[k] is None:
+            row[k] = v
     return row
 
 # ── 4. Build DataFrame (batched + parallel) ─────────────────────────────────

@@ -16,7 +16,7 @@ SPOT_TICKERS = {"GOLD_SPOT": "GC=F", "SILVER_SPOT": "SI=F"}
 SPOT_HISTORY_YEARS = 5
 CREDIT_MANAGERS = ["BLK", "BX", "OWL", "APO", "KKR", "ARES"]
 COT_URL = "https://publicreporting.cftc.gov/resource/72hh-3qpy.json"
-COT_METALS = {"gold": "GOLD", "silver": "SILVER"}
+COT_METALS = {"gold": ("GOLD", "088691"), "silver": ("SILVER", "084691")}
 COT_HISTORY_YEARS = 5
 COT_INDEX_LOOKBACK_YEARS = 3
 OZ_PER_CONTRACT = {"gold": 100, "silver": 5000}
@@ -100,10 +100,10 @@ def fetch_credit_managers() -> tuple[list[dict], list[dict]]:
 def fetch_cot() -> list[dict]:
     rows = []
     cutoff = (date.today() - timedelta(days=COT_HISTORY_YEARS * 365)).isoformat()
-    for metal_key, commodity_name in COT_METALS.items():
+    for metal_key, (commodity_name, contract_code) in COT_METALS.items():
         try:
             resp = requests.get(COT_URL, params={
-                "$where": f"commodity_name='{commodity_name}' AND report_date_as_yyyy_mm_dd>'{cutoff}'",
+                "$where": f"cftc_contract_market_code='{contract_code}' AND report_date_as_yyyy_mm_dd>'{cutoff}'",
                 "$order": "report_date_as_yyyy_mm_dd ASC",
                 "$limit": 5000,
                 "$select": "report_date_as_yyyy_mm_dd,m_money_positions_long_all,m_money_positions_short_all,open_interest_all"
@@ -114,20 +114,19 @@ def fetch_cot() -> list[dict]:
                 print(f"  [!] COT {metal_key}: no data", file=sys.stderr)
                 continue
 
-            # Parse and deduplicate by report_date (API may return multiple rows per date)
-            by_date: dict[str, dict] = {}
+            # Parse rows (filtered by contract code, so no duplicates)
+            parsed = []
             for r in data:
-                rd = r["report_date_as_yyyy_mm_dd"][:10]
                 mm_long = int(r["m_money_positions_long_all"])
                 mm_short = int(r["m_money_positions_short_all"])
-                by_date[rd] = {
-                    "metal": metal_key, "report_date": rd,
+                parsed.append({
+                    "metal": metal_key,
+                    "report_date": r["report_date_as_yyyy_mm_dd"][:10],
                     "mm_long": mm_long, "mm_short": mm_short,
                     "mm_net": mm_long - mm_short,
                     "open_interest": int(r["open_interest_all"]),
                     "cot_index": None
-                }
-            parsed = list(by_date.values())
+                })
 
             # Compute COT Index: 100 * (current_net - min_3yr) / (max_3yr - min_3yr)
             lookback_cutoff = (date.today() - timedelta(days=COT_INDEX_LOOKBACK_YEARS * 365)).isoformat()
