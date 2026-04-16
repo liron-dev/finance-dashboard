@@ -114,20 +114,20 @@ def fetch_cot() -> list[dict]:
                 print(f"  [!] COT {metal_key}: no data", file=sys.stderr)
                 continue
 
-            # Parse all rows and compute COT Index with 3yr lookback
-            parsed = []
+            # Parse and deduplicate by report_date (API may return multiple rows per date)
+            by_date: dict[str, dict] = {}
             for r in data:
+                rd = r["report_date_as_yyyy_mm_dd"][:10]
                 mm_long = int(r["m_money_positions_long_all"])
                 mm_short = int(r["m_money_positions_short_all"])
-                parsed.append({
-                    "metal": metal_key,
-                    "report_date": r["report_date_as_yyyy_mm_dd"][:10],
-                    "mm_long": mm_long,
-                    "mm_short": mm_short,
+                by_date[rd] = {
+                    "metal": metal_key, "report_date": rd,
+                    "mm_long": mm_long, "mm_short": mm_short,
                     "mm_net": mm_long - mm_short,
                     "open_interest": int(r["open_interest_all"]),
                     "cot_index": None
-                })
+                }
+            parsed = list(by_date.values())
 
             # Compute COT Index: 100 * (current_net - min_3yr) / (max_3yr - min_3yr)
             lookback_cutoff = (date.today() - timedelta(days=COT_INDEX_LOOKBACK_YEARS * 365)).isoformat()
