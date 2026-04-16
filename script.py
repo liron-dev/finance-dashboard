@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Daily S&P 500 metrics → Supabase.
+"""Daily S&P 500 metrics → Supabase (single snapshot, no history).
 
 Metrics: price, gross_margin, roic, fcf_margin, int_coverage, pe_ratio.
 See README.md for SQL schema, setup, and usage details.
 """
-import argparse, os, sys, time, uuid
+import argparse, os, sys, time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from io import StringIO
@@ -14,15 +14,12 @@ import pandas as pd, requests, yfinance as yf
 # ── Config ────────────────────────────────────────────────────────────────────
 WORKERS, MAX_RETRIES, RETRY_DELAY = 2, 2, 3
 BATCH_SIZE, BATCH_PAUSE = 50, 5  # pause 5s every 50 tickers to avoid rate limits
-STOCK_NS = uuid.UUID("b1a8c3f0-9d2e-4f71-8e55-1a3c6d8e9f20")
 METRIC_COLS = ["price", "gross_margin", "roic", "fcf_margin", "int_coverage", "pe_ratio"]
+MIN_SUCCESS_RATE = 0.90  # only replace DB data if ≥90% of tickers succeeded
 EST_INTEREST_RATE = 0.05   # fallback rate when interest data missing but debt exists
 INT_COV_CAP = 999.99       # cap for debt-free companies
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
-def ticker_uuid(ticker: str) -> str:
-    return str(uuid.uuid5(STOCK_NS, ticker))
-
 def _first(stmt: pd.DataFrame | None, *keys: str) -> float | None:
     """Latest-period value for the first key whose value is not NaN."""
     if stmt is None or stmt.empty: return None
@@ -70,8 +67,8 @@ def _resolve_ebit(inc, int_exp):
     return pt + abs(int_exp) if pt is not None and int_exp is not None else None
 
 # ── 3. Per-ticker fetch ──────────────────────────────────────────────────────
-def fetch_metrics(symbol: str) -> dict:
-    row = {"stock_id": ticker_uuid(symbol), "ticker": symbol, "name": symbol,
+def fetch_metrics(symbol: str, sector: str) -> dict:
+    row = {"ticker": symbol, "name": symbol, "sector": sector,
            **{k: None for k in METRIC_COLS}}
     for attempt in range(MAX_RETRIES + 1):
         try:
@@ -128,7 +125,7 @@ def fetch_metrics(symbol: str) -> dict:
     return row
 
 # ── 4. Build DataFrame (batched + parallel) ─────────────────────────────────
-def build_df(tickers: list[str]) -> pd.DataFrame:
+def build_df(tickers: list[str], sectors: dict[str, str]) -> pd.DataFrame:
     results: dict[str, dict] = {}
     total = len(tickers)
     print(f"\nFetching {total} tickers ({WORKERS} workers, batches of {BATCH_SIZE}) …\n", flush=True)
@@ -139,7 +136,7 @@ def build_df(tickers: list[str]) -> pd.DataFrame:
             print(f"  — pausing {BATCH_PAUSE}s …", flush=True)
             time.sleep(BATCH_PAUSE)
         with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-            futures = {pool.submit(fetch_metrics, sym): sym for sym in batch}
+            futures = {pool.submit(fetch_metrics, sym, sectors.get(sym, "")): sym for sym in batch}
             for future in as_completed(futures):
                 sym = futures[future]
                 r = future.result()
@@ -178,52 +175,54 @@ def _sb():
     if not url or not key: sys.exit("[error] Set SUPABASE_URL and SUPABASE_KEY env vars.")
     return create_client(url, key)
 
-def seed_stocks(sp500_df: pd.DataFrame, names: dict[str, str]) -> None:
-    sb = _sb()
-    records = [{"id": ticker_uuid(r["Symbol"]), "ticker": r["Symbol"],
-                "name": names.get(r["Symbol"]) or r.get("Security"),
-                "sector": r.get("GICS Sector")} for _, r in sp500_df.iterrows()]
-    sb.table("stocks").upsert(records, on_conflict="ticker").execute()
-    print(f"[Supabase] Seeded {len(records)} stocks.")
-
 def push_metrics(df: pd.DataFrame) -> None:
-    sb, today = _sb(), date.today().isoformat()
+    sb = _sb()
     valid = df.dropna(subset=METRIC_COLS, how="all")
-    # NaN → None for JSON-safe serialization
+    total, success = len(df), len(valid)
+    rate = success / total if total else 0
+
+    if not valid.empty and rate < MIN_SUCCESS_RATE:
+        print(f"[Supabase] Only {success}/{total} ({rate:.0%}) succeeded — "
+              f"below {MIN_SUCCESS_RATE:.0%} threshold. Keeping existing data.",
+              file=sys.stderr)
+        return
+    if valid.empty:
+        print("[Supabase] Nothing to push (all tickers failed).", file=sys.stderr)
+        return
+
+    # Build records (NaN → None for JSON-safe serialization)
+    today = date.today().isoformat()
     records = []
     for _, r in valid.iterrows():
-        rec = {"stock_id": r["stock_id"], "date": today}
+        rec = {"ticker": r["ticker"], "name": r["name"], "sector": r["sector"],
+               "updated_at": today}
         for col in METRIC_COLS:
             v = r[col]
             rec[col] = float(v) if pd.notna(v) else None
         records.append(rec)
-    if not records:
-        print("[Supabase] Nothing to push (all tickers failed).", file=sys.stderr); return
-    sb.table("stock_metrics").upsert(records, on_conflict="stock_id,date").execute()
-    skipped = len(df) - len(records)
-    msg = f"[Supabase] Upserted {len(records)} rows for {today}."
-    if skipped: msg += f"  Skipped {skipped} failed."
-    print(msg)
+
+    # Replace: delete old data, then insert new
+    sb.table("stocks").delete().neq("ticker", "").execute()
+    sb.table("stocks").insert(records).execute()
+    print(f"[Supabase] Replaced table with {len(records)} rows ({today}).")
 
 # ── 7. Entry point ───────────────────────────────────────────────────────────
 def main() -> None:
     ap = argparse.ArgumentParser(description="Daily S&P 500 metrics collector")
-    ap.add_argument("--push",        action="store_true", help="Upsert metrics into Supabase")
-    ap.add_argument("--seed-stocks", action="store_true", help="Populate stocks table (run once before --push)")
-    ap.add_argument("--limit",       type=int, default=0, metavar="N", help="First N tickers only (dev)")
+    ap.add_argument("--push",  action="store_true", help="Replace Supabase data with today's metrics")
+    ap.add_argument("--limit", type=int, default=0, metavar="N", help="First N tickers only (dev)")
     args = ap.parse_args()
 
     print("Fetching S&P 500 constituent list …")
     sp500_df = get_sp500_df()
     if args.limit > 0: sp500_df = sp500_df.head(args.limit)
     tickers = sp500_df["Symbol"].tolist()
+    sectors = dict(zip(sp500_df["Symbol"], sp500_df.get("GICS Sector", "")))
     print(f"  → {len(tickers)} tickers")
 
-    df = build_df(tickers)
+    df = build_df(tickers, sectors)
     print_table(df)
 
-    if args.seed_stocks:
-        seed_stocks(sp500_df, dict(zip(df["ticker"], df["name"])))
     if args.push:
         push_metrics(df)
     if int(df[METRIC_COLS].notna().any(axis=1).sum()) == 0:

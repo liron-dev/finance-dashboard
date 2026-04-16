@@ -19,10 +19,7 @@ Daily S&P 500 fundamental metrics collector with Supabase storage and Vercel-rea
 # Dev: fetch first 10 tickers, print table only
 python script.py --limit 10
 
-# First-time setup: populate stocks table
-python script.py --seed-stocks --push
-
-# Daily run: fetch all 500 + upsert metrics
+# Daily run: fetch all 500 + replace Supabase data
 python script.py --push
 ```
 
@@ -39,42 +36,26 @@ Run once in the Supabase SQL editor:
 
 ```sql
 CREATE TABLE stocks (
-  id UUID PRIMARY KEY,
-  ticker TEXT UNIQUE NOT NULL,
+  ticker TEXT PRIMARY KEY,
   name TEXT,
-  sector TEXT
-);
-
-CREATE TABLE stock_metrics (
-  stock_id UUID NOT NULL REFERENCES stocks(id) ON DELETE CASCADE,
-  date DATE NOT NULL,
+  sector TEXT,
   price REAL,
   gross_margin REAL,
   roic REAL,
   fcf_margin REAL,
   int_coverage REAL,
   pe_ratio REAL,
-  PRIMARY KEY (stock_id, date)
+  updated_at DATE
 );
 
-CREATE INDEX ON stock_metrics (date DESC);
-
--- Row Level Security (frontend reads via anon key)
 ALTER TABLE stocks ENABLE ROW LEVEL SECURITY;
-ALTER TABLE stock_metrics ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public read" ON stocks FOR SELECT USING (true);
-CREATE POLICY "public read" ON stock_metrics FOR SELECT USING (true);
-
--- View for frontend (joins latest metrics with stock info)
-CREATE VIEW latest_metrics AS
-  SELECT s.ticker, s.name, s.sector, m.*
-  FROM stock_metrics m JOIN stocks s ON s.id = m.stock_id
-  WHERE m.date = (SELECT MAX(date) FROM stock_metrics);
 ```
 
-## Storage Estimate
+## Data Model
 
-Using `REAL` (4-byte) columns: ~25 MB/year including indexes. The Supabase free tier (500 MB) supports ~20 years of daily data.
+Single table, no history. Each daily run replaces all rows with fresh data.
+If a run fails (< 90% of tickers succeed), existing data is preserved.
 
 ## GitHub Actions
 
