@@ -3,8 +3,9 @@
 
 Powers panels: Money Printing, Credit Crisis, Credit Managers, Institutional Positioning.
 """
-import argparse, os, sys
+import argparse, bisect, os, sys
 from datetime import date, timedelta
+from statistics import median
 
 import pandas as pd, requests, yfinance as yf
 from fredapi import Fred
@@ -147,8 +148,92 @@ def fetch_cot() -> list[dict]:
             print(f"  [!] COT {metal_key}: {e}", file=sys.stderr)
     return rows
 
-# ── 5. Push to Supabase ─────────────────────────────────────────────────────
-def push_all(macro_rows, spot_rows, managers, history, cot_rows):
+# ── 5. Historical performance table (COT score → price changes) ────────────
+SCORE_BUCKETS = ["0-20", "21-40", "41-60", "61-80", "81-100"]
+METAL_SPOT_MAP = {"gold": "GOLD_SPOT", "silver": "SILVER_SPOT"}
+
+def _find_nearest_price(target: str, by_date: dict, sorted_dates: list) -> float | None:
+    """Find price on target date or nearest trading day within 5 days."""
+    if target in by_date:
+        return by_date[target]
+    idx = bisect.bisect_left(sorted_dates, target)
+    best, best_diff = None, 6
+    for i in (idx, idx - 1):
+        if 0 <= i < len(sorted_dates):
+            diff = abs((date.fromisoformat(sorted_dates[i]) - date.fromisoformat(target)).days)
+            if diff < best_diff:
+                best, best_diff = sorted_dates[i], diff
+    return by_date[best] if best else None
+
+def _bucket(score: float) -> str:
+    if score <= 20: return "0-20"
+    if score <= 40: return "21-40"
+    if score <= 60: return "41-60"
+    if score <= 80: return "61-80"
+    return "81-100"
+
+def compute_cot_performance(cot_rows: list[dict], spot_rows: list[dict]) -> list[dict]:
+    """Cross-reference COT scores with spot prices to compute median price
+    changes at 30-day and 90-day horizons per score bucket.
+
+    This powers the "WHAT HAPPENED NEXT?" table in the gold/silver
+    institutional positioning panel (Felix Prehn style 1-100 dashboard).
+    """
+    # Build price lookup: series_id → {date_str → price}
+    prices: dict[str, dict[str, float]] = {}
+    for r in spot_rows:
+        prices.setdefault(r["series_id"], {})[r["date"]] = r["value"]
+
+    results = []
+    for metal in ("gold", "silver"):
+        spot_key = METAL_SPOT_MAP[metal]
+        by_date = prices.get(spot_key, {})
+        if not by_date:
+            print(f"  [!] COT perf {metal}: no spot prices", file=sys.stderr)
+            continue
+        sorted_dates = sorted(by_date)
+
+        # Collect price changes per bucket
+        bucket_30: dict[str, list[float]] = {b: [] for b in SCORE_BUCKETS}
+        bucket_90: dict[str, list[float]] = {b: [] for b in SCORE_BUCKETS}
+
+        metal_cot = [r for r in cot_rows if r["metal"] == metal and r.get("cot_index") is not None]
+        for row in metal_cot:
+            base = _find_nearest_price(row["report_date"], by_date, sorted_dates)
+            if base is None or base == 0:
+                continue
+            b = _bucket(row["cot_index"])
+            d = date.fromisoformat(row["report_date"])
+
+            p30 = _find_nearest_price((d + timedelta(days=30)).isoformat(), by_date, sorted_dates)
+            if p30 is not None:
+                bucket_30[b].append((p30 - base) / base * 100)
+
+            p90 = _find_nearest_price((d + timedelta(days=90)).isoformat(), by_date, sorted_dates)
+            if p90 is not None:
+                bucket_90[b].append((p90 - base) / base * 100)
+
+        for b in SCORE_BUCKETS:
+            weeks = max(len(bucket_30[b]), len(bucket_90[b]))
+            if weeks == 0:
+                continue
+            results.append({
+                "metal": metal,
+                "score_bucket": b,
+                "weeks": weeks,
+                "median_30d": round(median(bucket_30[b]), 1) if bucket_30[b] else None,
+                "median_90d": round(median(bucket_90[b]), 1) if bucket_90[b] else None,
+            })
+
+        if metal_cot:
+            latest = max(metal_cot, key=lambda r: r["report_date"])
+            print(f"  COT perf {metal}: {len(metal_cot)} weeks analyzed, "
+                  f"latest bucket={_bucket(latest['cot_index'])}")
+
+    return results
+
+# ── 6. Push to Supabase ─────────────────────────────────────────────────────
+def push_all(macro_rows, spot_rows, managers, history, cot_rows, perf_rows):
     sb = _sb()
     all_macro = macro_rows + spot_rows
     today = date.today().isoformat()
@@ -177,7 +262,13 @@ def push_all(macro_rows, spot_rows, managers, history, cot_rows):
             sb.table("cot_positioning").upsert(cot_rows[i:i+500]).execute()
         print(f"[Supabase] cot_positioning: {len(cot_rows)} rows upserted")
 
-# ── 6. Entry point ──────────────────────────────────────────────────────────
+    # cot_performance: replace (small table, always recomputed)
+    if perf_rows:
+        sb.table("cot_performance").delete().neq("metal", "").execute()
+        sb.table("cot_performance").insert(perf_rows).execute()
+        print(f"[Supabase] cot_performance: {len(perf_rows)} rows replaced")
+
+# ── 7. Entry point ──────────────────────────────────────────────────────────
 def main():
     ap = argparse.ArgumentParser(description="Macro indicators + credit managers + COT → Supabase")
     ap.add_argument("--push", action="store_true", help="Push data to Supabase")
@@ -200,6 +291,9 @@ def main():
     print("\n── COT positioning ──")
     cot_rows = fetch_cot()
 
+    print("\n── COT historical performance ──")
+    perf_rows = compute_cot_performance(cot_rows, spot_rows)
+
     # Summary
     print(f"\n── Summary ──")
     print(f"  FRED rows:    {len(macro_rows)}")
@@ -207,9 +301,10 @@ def main():
     print(f"  Managers:     {len(managers)}")
     print(f"  History rows: {len(history)}")
     print(f"  COT rows:     {len(cot_rows)}")
+    print(f"  Perf rows:    {len(perf_rows)}")
 
     if args.push:
-        push_all(macro_rows, spot_rows, managers, history, cot_rows)
+        push_all(macro_rows, spot_rows, managers, history, cot_rows, perf_rows)
     else:
         print("\n(dry run — use --push to write to Supabase)")
 

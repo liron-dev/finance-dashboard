@@ -25,3 +25,9 @@ supabase/.temp
 
 # Reference screenshots
 pictures/
+
+# Python bytecode
+__pycache__/
+
+# Reference chats
+gemini.txt

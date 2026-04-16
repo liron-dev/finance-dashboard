@@ -5,3 +5,4 @@ lxml>=5.0.0
 supabase>=2.4.0
 fredapi>=0.5.2
 xlrd>=2.0.1
+curl-cffi>=0.7.0

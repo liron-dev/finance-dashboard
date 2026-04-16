@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 """COMEX warehouse inventory (gold + silver registered/eligible) → Supabase.
 
-Downloads daily Excel reports from CME Group, parses TOTAL row.
+Uses curl_cffi to impersonate a real Chrome browser's TLS fingerprint, which
+bypasses CME Group's Cloudflare bot protection that blocks plain `requests`.
 Graceful failure: exits 0 on download errors to avoid blocking other scripts.
 """
 import argparse, os, sys
 from datetime import date
 from io import BytesIO
 
-import pandas as pd, requests
+import pandas as pd
+from curl_cffi import requests as curl_requests
 
 # ── Config ────────────────────────────────────────────────────────────────────
 CME_BASE = "https://www.cmegroup.com/delivery_reports"
 METALS = {"gold": "Gold_Stocks.xls", "silver": "Silver_stocks.xls"}
+IMPERSONATE = "chrome124"  # curl_cffi impersonation profile
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept": "application/vnd.ms-excel,application/octet-stream,*/*",
     "Accept-Language": "en-US,en;q=0.9",
-    "Referer": "https://www.cmegroup.com/clearing/operations-and-deliveries/nymex-delivery-notices.html",
+    "Referer": "https://www.cmegroup.com/markets/metals/precious/gold.quotes.html",
 }
 
 # ── Supabase helper ──────────────────────────────────────────────────────────
@@ -32,52 +33,33 @@ def _sb():
 # ── Download + parse ─────────────────────────────────────────────────────────
 def fetch_comex(metal: str, filename: str) -> dict | None:
     url = f"{CME_BASE}/{filename}"
-    session = requests.Session()
-    session.headers.update(HEADERS)
     try:
-        resp = session.get(url, timeout=30)
+        # curl_cffi with chrome impersonation defeats Cloudflare TLS fingerprinting
+        resp = curl_requests.get(url, headers=HEADERS, impersonate=IMPERSONATE, timeout=30)
         if resp.status_code == 403:
-            print(f"  [!] {metal}: CME returned 403 (Cloudflare blocked)", file=sys.stderr)
+            print(f"  [!] {metal}: 403 even with curl_cffi — CME may have tightened", file=sys.stderr)
             return None
         resp.raise_for_status()
-    except requests.RequestException as e:
+    except Exception as e:
         print(f"  [!] {metal}: download failed: {e}", file=sys.stderr)
         return None
 
     try:
-        df = pd.read_excel(BytesIO(resp.content), engine="xlrd")
-        # Find TOTAL row by string matching
-        total_mask = df.apply(lambda row: row.astype(str).str.strip().str.upper().eq("TOTAL").any(), axis=1)
-        if not total_mask.any():
-            print(f"  [!] {metal}: no TOTAL row found in Excel", file=sys.stderr)
+        # Read with no header — the file has a multi-row banner and per-depository blocks
+        df = pd.read_excel(BytesIO(resp.content), engine="xlrd", header=None)
+        # Find the grand-total rows: "TOTAL REGISTERED" and "TOTAL ELIGIBLE"
+        # Column 0 holds the label; column 7 ("TOTAL TODAY") holds the current-day value.
+        labels = df[0].astype(str).str.strip().str.upper()
+        reg_rows = df[labels == "TOTAL REGISTERED"]
+        elig_rows = df[labels == "TOTAL ELIGIBLE"]
+        if reg_rows.empty or elig_rows.empty:
+            print(f"  [!] {metal}: missing TOTAL REGISTERED / TOTAL ELIGIBLE row", file=sys.stderr)
             return None
 
-        total_row = df[total_mask].iloc[0]
-        # Find Registered and Eligible columns by header matching
-        headers = df.iloc[0] if len(df) > 0 else pd.Series()
-        reg_col, elig_col = None, None
-        for i, h in enumerate(df.columns):
-            col_str = str(headers.get(h, h)).upper().strip()
-            if "REGISTERED" in col_str and reg_col is None:
-                reg_col = h
-            elif "ELIGIBLE" in col_str and elig_col is None:
-                elig_col = h
+        registered = float(pd.to_numeric(reg_rows.iloc[0, 7], errors="coerce"))
+        eligible = float(pd.to_numeric(elig_rows.iloc[0, 7], errors="coerce"))
 
-        # Fallback: try numeric columns from total row
-        if reg_col is None or elig_col is None:
-            nums = pd.to_numeric(total_row, errors="coerce").dropna()
-            if len(nums) >= 2:
-                registered = float(nums.iloc[0])
-                eligible = float(nums.iloc[1])
-            else:
-                print(f"  [!] {metal}: couldn't parse registered/eligible", file=sys.stderr)
-                return None
-        else:
-            registered = float(pd.to_numeric(total_row[reg_col], errors="coerce"))
-            eligible = float(pd.to_numeric(total_row[elig_col], errors="coerce"))
-
-        # Sanity check
-        if registered <= 0 or eligible <= 0:
+        if not (registered > 0 and eligible > 0):
             print(f"  [!] {metal}: invalid values reg={registered} elig={eligible}", file=sys.stderr)
             return None
 
@@ -100,7 +82,7 @@ def main():
     ap.add_argument("--push", action="store_true", help="Push data to Supabase")
     args = ap.parse_args()
 
-    print("── COMEX inventory ──")
+    print("── COMEX inventory (curl_cffi + chrome impersonation) ──")
     records = []
     for metal, filename in METALS.items():
         result = fetch_comex(metal, filename)
@@ -109,7 +91,7 @@ def main():
 
     if not records:
         print("\n[warn] No COMEX data fetched. Existing data preserved.", file=sys.stderr)
-        return  # exit 0 — graceful failure
+        return
 
     if args.push:
         push_comex(records)
