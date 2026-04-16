@@ -22,3 +22,6 @@ supabase/.temp
 # Misc
 .DS_Store
 *.pem
+
+# Reference screenshots
+pictures/
