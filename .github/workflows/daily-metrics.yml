@@ -2,9 +2,9 @@ name: Daily S&P 500 Metrics
 
 on:
   schedule:
-    # 6:00 PM Israel (IDT, UTC+3) = 15:00 UTC.  Mon–Fri only.
+    # 6:00 PM Israel (IDT, UTC+3) = 15:00 UTC.  Mon-Fri only.
     # In winter (IST, UTC+2) this fires at 5 PM local.
-    # US market closes 4 PM ET — prices here are intraday, not closing.
+    # US market closes 4 PM ET - prices here are intraday, not closing.
     # For closing prices, change to:  cron: '0 21 * * 1-5'
     - cron: '0 15 * * 1-5'
   workflow_dispatch: # manual trigger button in GitHub UI
@@ -22,7 +22,27 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - run: python script.py --push
+      - name: Fetch S&P 500 metrics
+        run: python script.py --push
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: Cooldown (avoid yfinance rate limits)
+        run: sleep 30
+
+      - name: Fetch macro indicators + credit managers + COT
+        run: python macro.py --push
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+
+      - name: Fetch COMEX inventory
+        run: python comex.py --push
+        continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}

@@ -3,3 +3,5 @@ requests>=2.31.0
 pandas>=2.2.0
 lxml>=5.0.0
 supabase>=2.4.0
+fredapi>=0.5.2
+xlrd>=2.0.1
