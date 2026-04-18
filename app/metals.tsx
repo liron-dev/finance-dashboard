@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { PageShell } from '@/components/layout/PageShell';
 import { Card } from '@/components/primitives/Card';
 import { StatBox } from '@/components/primitives/StatBox';
@@ -12,6 +12,7 @@ import { SemiGauge } from '@/components/charts/SemiGauge';
 import { RingGauge } from '@/components/charts/RingGauge';
 import { StackedBarChart } from '@/components/charts/StackedBarChart';
 import { ChartLegend } from '@/components/charts/ChartLegend';
+import { PaperPhysicalStripe } from '@/components/charts/PaperPhysicalStripe';
 import { fetchMetals, MetalsData } from '@/lib/queries';
 import { creditZone, theme, zoneColor, cotLabel, cotInstitutionStance } from '@/lib/theme';
 import { formatBigNum, formatPct, formatSignedPct } from '@/lib/format';
@@ -22,7 +23,6 @@ export default function Metals() {
   const { width } = useWindowDimensions();
   const [d, setD] = useState<MetalsData | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [perfTab, setPerfTab] = useState<Metal>('gold');
 
   const load = () => {
     setErr(null);
@@ -42,59 +42,36 @@ export default function Metals() {
         <View style={{ gap: theme.spacing.md } as any}>
           <SkeletonCard />
           <SkeletonCard />
-          <SkeletonCard />
         </View>
       </PageShell>
     );
   }
 
-  const chartW = Math.min(width - 48, 520);
-  const isMobile = width < theme.breakpoints.sm;
-  const isDesktop = width >= theme.breakpoints.lg;
+  const isMobile = width < theme.breakpoints.md;
+  const chartW = Math.min((isMobile ? width : width / 2) - 72, 520);
 
-  const gold = d.cotLatest.find((r) => r.metal === 'gold');
-  const silver = d.cotLatest.find((r) => r.metal === 'silver');
-
-  const cotDate = [gold?.report_date, silver?.report_date].filter(Boolean).sort().reverse()[0];
+  const cotDate = [
+    d.cotLatest.find((r) => r.metal === 'gold')?.report_date,
+    d.cotLatest.find((r) => r.metal === 'silver')?.report_date,
+  ].filter(Boolean).sort().reverse()[0];
   const comexDate = d.comex.length ? d.comex[d.comex.length - 1].date : null;
 
   return (
     <PageShell>
       <View style={styles.header}>
         <Text style={styles.h1}>Metals</Text>
-        <Text style={styles.sub}>COT positioning, COMEX inventory, and "what happened next?" history.</Text>
+        <Text style={styles.sub}>Institutional positioning — gauge, paper/physical split, and "what happened next?" history.</Text>
       </View>
 
-      {/* Smart Money Meter */}
-      <Card title="Smart Money Meter" subtitle="CFTC COT Index — where commercial traders are positioned." footer={<FreshnessBadge date={cotDate ?? null} />}>
+      {/* Combined per-metal panel: Gauge + Paper/Physical stripe + HistTable */}
+      <Card
+        title="Institutional Positioning"
+        subtitle="CFTC COT Index, COMEX paper-to-physical ratio, and 3-year forward returns by bucket."
+        footer={<FreshnessBadge date={cotDate ?? null} />}
+      >
         <View style={[styles.twoCol, isMobile && styles.stack]}>
-          <CotPanel cot={gold} metal="gold" />
-          <CotPanel cot={silver} metal="silver" />
-        </View>
-      </Card>
-
-      {/* Paper vs Physical */}
-      <View style={{ height: theme.spacing.lg }} />
-      <Card title="Paper vs Physical" subtitle="Open-interest ounces divided by COMEX registered ounces.">
-        <View style={[styles.twoCol, isMobile && styles.stack]}>
-          {(['gold', 'silver'] as Metal[]).map((metal) => {
-            const cot = d.cotLatest.find((r) => r.metal === metal);
-            const latestInv = latestByMetal(d.comex, metal);
-            const ratio = cot && latestInv && latestInv.registered > 0
-              ? (cot.open_interest * OZ_PER_CONTRACT[metal]) / latestInv.registered
-              : 0;
-            return (
-              <View key={metal} style={styles.flex1}>
-                <StatBox
-                  label={`${metal.toUpperCase()} PAPER/PHYSICAL`}
-                  value={`${ratio.toFixed(1)}×`}
-                  color={ratio > 5 ? theme.red : ratio > 2 ? theme.amber : theme.green}
-                  secondary={`For every 1 oz in vaults, ${ratio.toFixed(1)} oz is traded on paper.`}
-                  size="lg"
-                />
-              </View>
-            );
-          })}
+          <MetalPanel metal="gold" data={d} />
+          <MetalPanel metal="silver" data={d} />
         </View>
       </Card>
 
@@ -111,7 +88,7 @@ export default function Metals() {
             ? ((total - (first.registered + first.eligible)) / (first.registered + first.eligible)) * 100
             : 0;
           const stress = 100 - coveragePct;
-          const denom = metal === 'gold' ? 1e6 : 1e6;
+          const denom = 1e6;
           return (
             <Card
               key={metal}
@@ -165,49 +142,57 @@ export default function Metals() {
           );
         })}
       </View>
-
-      {/* Historical performance */}
-      <View style={{ height: theme.spacing.lg }} />
-      <Card title="What happened next?" subtitle="Historical 30d/90d forward returns grouped by COT Index bucket.">
-        <View style={styles.tabs}>
-          {(['gold', 'silver'] as Metal[]).map((m) => {
-            const active = perfTab === m;
-            return (
-              <Pressable key={m} onPress={() => setPerfTab(m)} style={[styles.tab, active && styles.tabActive]}>
-                <Text style={[styles.tabText, active && styles.tabTextActive]}>{m.toUpperCase()}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-        <HistTable rows={d.cotPerf.filter((p) => p.metal === perfTab)} />
-      </Card>
     </PageShell>
   );
 }
 
-function CotPanel({ cot, metal }: { cot: CotRow | undefined; metal: Metal }) {
-  if (!cot || cot.cot_index == null) {
-    return (
-      <View style={styles.flex1}>
-        <Text style={styles.mutedTitle}>{metal.toUpperCase()}</Text>
-        <Text style={styles.empty}>Not enough history yet</Text>
-      </View>
-    );
-  }
-  const v = cot.cot_index;
-  const zone = creditZone.cotIndex(v);
+function MetalPanel({ metal, data }: { metal: Metal; data: MetalsData }) {
+  const cot = data.cotLatest.find((r) => r.metal === metal);
+  const latestInv = latestByMetal(data.comex, metal);
+  const ratio = cot && latestInv && latestInv.registered > 0
+    ? (cot.open_interest * OZ_PER_CONTRACT[metal]) / latestInv.registered
+    : 0;
+  const perfRows = data.cotPerf.filter((p) => p.metal === metal);
+  const metalColor = metal === 'gold' ? theme.yellow : '#D4D4D8';
+
   return (
-    <View style={styles.flex1}>
-      <Text style={styles.mutedTitle}>{metal.toUpperCase()}</Text>
-      <SemiGauge value={v} size={220} />
-      <View style={{ alignItems: 'center', marginTop: 4 }}>
-        <Badge text={cotLabel(v)} variant={zone} />
+    <View style={styles.panel}>
+      <View style={styles.panelHeader}>
+        <View style={[styles.metalDot, { backgroundColor: metalColor }]} />
+        <Text style={styles.panelTitle}>{metal.toUpperCase()}</Text>
       </View>
-      <Callout
-        title={cotInstitutionStance(v)}
-        body={`Managed money is net ${cot.mm_net >= 0 ? 'long' : 'short'} ${formatBigNum(Math.abs(cot.mm_net))} contracts.`}
-        borderColor={zoneColor(zone)}
-      />
+
+      {/* Smart Money Meter */}
+      {cot && cot.cot_index != null ? (
+        <View style={{ alignItems: 'center' }}>
+          <SemiGauge value={cot.cot_index} size={220} />
+          <View style={{ alignItems: 'center', marginTop: 4 }}>
+            <Badge text={cotLabel(cot.cot_index)} variant={creditZone.cotIndex(cot.cot_index)} />
+          </View>
+          <Callout
+            title={cotInstitutionStance(cot.cot_index)}
+            body={`Managed money is net ${cot.mm_net >= 0 ? 'long' : 'short'} ${formatBigNum(Math.abs(cot.mm_net))} contracts.`}
+            borderColor={zoneColor(creditZone.cotIndex(cot.cot_index))}
+          />
+        </View>
+      ) : (
+        <Text style={styles.empty}>Not enough history yet</Text>
+      )}
+
+      {/* Paper vs Physical stripe */}
+      <View style={styles.sectionGap} />
+      <Text style={styles.sectionLabel}>PAPER VS PHYSICAL</Text>
+      {ratio > 0 ? (
+        <PaperPhysicalStripe metal={metal} ratio={ratio} />
+      ) : (
+        <Text style={styles.empty}>No COMEX inventory data</Text>
+      )}
+
+      {/* What happened next */}
+      <View style={styles.sectionGap} />
+      <Text style={styles.sectionLabel}>WHAT HAPPENED NEXT?</Text>
+      <Text style={styles.sectionHint}>Median spot move over the following 30/90 days, by COT bucket (3yr).</Text>
+      <HistTable rows={perfRows} />
     </View>
   );
 }
@@ -217,10 +202,10 @@ function HistTable({ rows }: { rows: CotPerfRow[] }) {
   return (
     <View style={styles.table}>
       <View style={[styles.trow, styles.thead]}>
-        <Text style={[styles.th, styles.col1]}>COT Bucket</Text>
+        <Text style={[styles.th, styles.col1]}>Bucket</Text>
         <Text style={[styles.th, styles.col2]}>Weeks</Text>
-        <Text style={[styles.th, styles.col3]}>30d Median</Text>
-        <Text style={[styles.th, styles.col3]}>90d Median</Text>
+        <Text style={[styles.th, styles.col3]}>30d</Text>
+        <Text style={[styles.th, styles.col3]}>90d</Text>
       </View>
       {COT_PERF_BUCKETS.map((b) => {
         const r = byBucket.get(b);
@@ -283,24 +268,29 @@ const styles = StyleSheet.create({
   stack: { flexDirection: 'column', gap: theme.spacing.lg } as any,
   row2: { flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing.md } as any,
   flex1: { flex: 1 },
-  mutedTitle: { ...theme.type.label, color: theme.textMuted, textAlign: 'center', marginBottom: 4 },
-  empty: { ...theme.type.body, color: theme.textMuted, textAlign: 'center' },
 
-  tabs: { flexDirection: 'row', gap: 8, marginBottom: theme.spacing.md } as any,
-  tab: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: theme.radius.pill,
+  panel: {
+    flex: 1,
+    padding: theme.spacing.md,
     borderWidth: 1,
     borderColor: theme.border,
-  },
-  tabActive: { borderColor: theme.yellow, backgroundColor: theme.yellow + '22' },
-  tabText: { ...theme.type.label, color: theme.textSecondary },
-  tabTextActive: { color: theme.yellow },
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.bgCardAlt,
+    gap: theme.spacing.sm,
+  } as any,
+  panelHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 } as any,
+  panelTitle: { ...theme.type.h2, color: theme.textPrimary, letterSpacing: 1 },
+  metalDot: { width: 10, height: 10, borderRadius: 5 },
+
+  sectionGap: { height: theme.spacing.md },
+  sectionLabel: { ...theme.type.label, color: theme.textMuted, marginBottom: 6 },
+  sectionHint: { ...theme.type.micro, color: theme.textMuted, marginBottom: 6 },
+
+  empty: { ...theme.type.body, color: theme.textMuted, textAlign: 'center' },
 
   table: { borderWidth: 1, borderColor: theme.border, borderRadius: theme.radius.md, overflow: 'hidden' },
-  trow: { flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: theme.border },
-  thead: { backgroundColor: theme.bgCardAlt },
+  trow: { flexDirection: 'row', paddingVertical: 8, paddingHorizontal: 10, borderBottomWidth: 1, borderBottomColor: theme.border },
+  thead: { backgroundColor: theme.bgCard },
   th: { ...theme.type.label, color: theme.textSecondary },
   td: { ...theme.type.body, color: theme.textPrimary },
   col1: { flex: 1.2 },

@@ -178,27 +178,59 @@ export async function fetchCredit(): Promise<CreditData> {
   };
 }
 
-export type SpotData = {
-  goldToday: MacroRow | null;
-  goldPrev: MacroRow | null;
-  silverToday: MacroRow | null;
-  silverPrev: MacroRow | null;
+export type TickerSymbol = 'GOLD_SPOT' | 'SILVER_SPOT' | 'SPX_SPOT' | 'NDX_SPOT' | 'BRENT_SPOT';
+
+export type TickerQuote = {
+  series: TickerSymbol;
+  today: MacroRow;
+  yearAgo: MacroRow | null;
 };
 
+export type SpotData = {
+  quotes: TickerQuote[];
+};
+
+const TICKER_ORDER: TickerSymbol[] = [
+  'GOLD_SPOT',
+  'SILVER_SPOT',
+  'SPX_SPOT',
+  'NDX_SPOT',
+  'BRENT_SPOT',
+];
+
 export async function fetchSpotTicker(): Promise<SpotData> {
+  // Pull ~400 days of history for each symbol so we can reliably find
+  // a trading day roughly 365 days prior for the YoY change.
+  const since = isoAgo(400);
   const { data } = await supabase
     .from('macro_indicators')
     .select('*')
-    .in('series_id', ['GOLD_SPOT', 'SILVER_SPOT'])
-    .order('date', { ascending: false })
-    .limit(6);
+    .in('series_id', TICKER_ORDER)
+    .gte('date', since)
+    .order('date', { ascending: false });
   const rows = (data as MacroRow[]) ?? [];
-  const gold = rows.filter((r) => r.series_id === 'GOLD_SPOT');
-  const silver = rows.filter((r) => r.series_id === 'SILVER_SPOT');
-  return {
-    goldToday: gold[0] ?? null,
-    goldPrev: gold[1] ?? null,
-    silverToday: silver[0] ?? null,
-    silverPrev: silver[1] ?? null,
-  };
+
+  const quotes: TickerQuote[] = [];
+  for (const sym of TICKER_ORDER) {
+    const series = rows.filter((r) => r.series_id === sym);
+    if (!series.length) continue;
+    const today = series[0];
+    // Find the row closest to 365 days before `today`
+    const target = new Date(today.date);
+    target.setDate(target.getDate() - 365);
+    const targetMs = target.getTime();
+    let yearAgo: MacroRow | null = null;
+    let bestDiff = Infinity;
+    for (const r of series) {
+      const diff = Math.abs(new Date(r.date).getTime() - targetMs);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        yearAgo = r;
+      }
+    }
+    // Accept only if within 14 days of the exact 1-year mark
+    if (yearAgo && bestDiff > 14 * 86400000) yearAgo = null;
+    quotes.push({ series: sym, today, yearAgo });
+  }
+  return { quotes };
 }
