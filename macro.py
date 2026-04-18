@@ -13,13 +13,22 @@ from fredapi import Fred
 # ── Config ────────────────────────────────────────────────────────────────────
 FRED_SERIES = ["M2SL", "BAMLH0A0HYM2", "DFF", "T10Y2Y", "PAYEMS", "PCEPI", "BAMLC0A4CBBB"]
 FRED_HISTORY_YEARS = 2
-SPOT_TICKERS = {"GOLD_SPOT": "GC=F", "SILVER_SPOT": "SI=F"}
+# Spot tickers displayed in SpotTicker + charts. S&P 500 / Nasdaq 100 / Brent added for the header strip.
+SPOT_TICKERS = {
+    "GOLD_SPOT": "GC=F",
+    "SILVER_SPOT": "SI=F",
+    "SPX_SPOT": "^GSPC",
+    "NDX_SPOT": "^NDX",
+    "BRENT_SPOT": "BZ=F",
+}
 SPOT_HISTORY_YEARS = 5
 CREDIT_MANAGERS = ["BLK", "BX", "OWL", "APO", "KKR", "ARES"]
-COT_URL = "https://publicreporting.cftc.gov/resource/kh3c-gbw2.json"  # Disaggregated Futures+Options Combined
+COT_URL_COMBINED = "https://publicreporting.cftc.gov/resource/kh3c-gbw2.json"  # Disaggregated Futures+Options Combined
+COT_URL_FUTURES_ONLY = "https://publicreporting.cftc.gov/resource/72hh-3qpy.json"  # Disaggregated Futures-Only
 COT_METALS = {"gold": ("GOLD", "088691"), "silver": ("SILVER", "084691")}
 COT_HISTORY_YEARS = 5
 COT_INDEX_LOOKBACK_YEARS = 3
+COT_PERF_YEARS = 3  # "What happened next?" table window (Felix/Goat Academy uses 3 years)
 OZ_PER_CONTRACT = {"gold": 100, "silver": 5000}
 
 # ── Supabase helper ──────────────────────────────────────────────────────────
@@ -98,54 +107,69 @@ def fetch_credit_managers() -> tuple[list[dict], list[dict]]:
     return managers, history
 
 # ── 4. CFTC COT positioning ─────────────────────────────────────────────────
+def _cot_fetch(url: str, contract_code: str, cutoff: str, select: str) -> list[dict]:
+    resp = requests.get(url, params={
+        "$where": f"cftc_contract_market_code='{contract_code}' AND report_date_as_yyyy_mm_dd>'{cutoff}'",
+        "$order": "report_date_as_yyyy_mm_dd ASC",
+        "$limit": 5000,
+        "$select": select,
+    }, timeout=30)
+    resp.raise_for_status()
+    return resp.json()
+
 def fetch_cot() -> list[dict]:
     """Williams COT Index on Commercial Long Ratio, 3yr rolling min-max.
 
-    Uses the Disaggregated Futures+Options Combined report.
-    Commercial = Producer/Merchant + Swap Dealer (hedgers / "smart money").
-    Long Ratio = comm_long / (comm_long + comm_short)  — 0..1 scale.
-    Low reading = commercials leaning heavily short (institutions selling).
-    High reading = commercials leaning long (institutions buying).
-    Matches the Goat Academy "Smart Money Meter" convention.
+    Commercial Long Ratio and managed-money positions come from the
+    Disaggregated Futures+Options Combined report — this is what matches Felix
+    Prehn's "Smart Money Meter" latest values exactly.
+
+    Open interest stored here comes from the Disaggregated Futures-ONLY report
+    because that's what the Paper/Physical ratio in Felix's dashboard divides
+    by registered COMEX ounces (gold ≈ 2.2×, silver ≈ 7.5×).
     """
     rows = []
     cutoff = (date.today() - timedelta(days=COT_HISTORY_YEARS * 365)).isoformat()
     for metal_key, (commodity_name, contract_code) in COT_METALS.items():
         try:
-            resp = requests.get(COT_URL, params={
-                "$where": f"cftc_contract_market_code='{contract_code}' AND report_date_as_yyyy_mm_dd>'{cutoff}'",
-                "$order": "report_date_as_yyyy_mm_dd ASC",
-                "$limit": 5000,
-                "$select": ("report_date_as_yyyy_mm_dd,"
-                            "prod_merc_positions_long,prod_merc_positions_short,"
-                            "swap_positions_long_all,swap__positions_short_all,"
-                            "m_money_positions_long_all,m_money_positions_short_all,"
-                            "open_interest_all")
-            }, timeout=30)
-            resp.raise_for_status()
-            data = resp.json()
-            if not data:
+            combined = _cot_fetch(
+                COT_URL_COMBINED, contract_code, cutoff,
+                "report_date_as_yyyy_mm_dd,"
+                "prod_merc_positions_long,prod_merc_positions_short,"
+                "swap_positions_long_all,swap__positions_short_all,"
+                "m_money_positions_long_all,m_money_positions_short_all,"
+                "open_interest_all"
+            )
+            if not combined:
                 print(f"  [!] COT {metal_key}: no data", file=sys.stderr)
                 continue
+            fo = _cot_fetch(
+                COT_URL_FUTURES_ONLY, contract_code, cutoff,
+                "report_date_as_yyyy_mm_dd,open_interest_all"
+            )
+            fo_by_date = {r["report_date_as_yyyy_mm_dd"][:10]: int(r["open_interest_all"]) for r in fo}
 
             parsed = []
-            for r in data:
+            for r in combined:
+                rd = r["report_date_as_yyyy_mm_dd"][:10]
                 pm_long = int(r["prod_merc_positions_long"])
                 pm_short = int(r["prod_merc_positions_short"])
                 sw_long = int(r["swap_positions_long_all"])
                 sw_short = int(r["swap__positions_short_all"])
                 mm_long = int(r["m_money_positions_long_all"])
                 mm_short = int(r["m_money_positions_short_all"])
-                oi = int(r["open_interest_all"])
                 comm_long = pm_long + sw_long
                 comm_short = pm_short + sw_short
                 comm_lr = comm_long / (comm_long + comm_short) if (comm_long + comm_short) else 0.0
                 parsed.append({
                     "metal": metal_key,
-                    "report_date": r["report_date_as_yyyy_mm_dd"][:10],
+                    "report_date": rd,
                     "mm_long": mm_long, "mm_short": mm_short,
                     "mm_net": mm_long - mm_short,
-                    "open_interest": oi,
+                    # Futures-only OI powers Paper/Physical on the frontend.
+                    # Fall back to combined OI only if the Futures-Only report
+                    # is missing that specific date (very rare).
+                    "open_interest": fo_by_date.get(rd, int(r["open_interest_all"])),
                     "_comm_lr": comm_lr,
                     "cot_index": None,
                 })
@@ -163,13 +187,13 @@ def fetch_cot() -> list[dict]:
                 else:
                     p["cot_index"] = round(100 * (p["_comm_lr"] - mn) / (mx - mn), 2)
 
-            # Drop scratch field before returning
             for p in parsed:
                 p.pop("_comm_lr", None)
 
             rows.extend(parsed)
             latest = parsed[-1]
-            print(f"  COT {metal_key}: {len(parsed)} weeks, latest index={latest['cot_index']}")
+            print(f"  COT {metal_key}: {len(parsed)} weeks, latest index={latest['cot_index']}, "
+                  f"OI(FO)={latest['open_interest']:,}")
         except Exception as e:
             print(f"  [!] COT {metal_key}: {e}", file=sys.stderr)
     return rows
@@ -223,7 +247,13 @@ def compute_cot_performance(cot_rows: list[dict], spot_rows: list[dict]) -> list
         bucket_30: dict[str, list[float]] = {b: [] for b in SCORE_BUCKETS}
         bucket_90: dict[str, list[float]] = {b: [] for b in SCORE_BUCKETS}
 
-        metal_cot = [r for r in cot_rows if r["metal"] == metal and r.get("cot_index") is not None]
+        perf_cutoff = (date.today() - timedelta(days=COT_PERF_YEARS * 365)).isoformat()
+        metal_cot = [
+            r for r in cot_rows
+            if r["metal"] == metal
+            and r.get("cot_index") is not None
+            and r["report_date"] >= perf_cutoff
+        ]
         for row in metal_cot:
             base = _find_nearest_price(row["report_date"], by_date, sorted_dates)
             if base is None or base == 0:

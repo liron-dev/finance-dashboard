@@ -73,7 +73,7 @@ export function SemiGauge({ value, label, caption, size = 220 }: Props) {
           <Line x1={cx} y1={cy} x2={cx} y2={cy - r + 6} stroke={theme.textPrimary} strokeWidth={3} strokeLinecap="round" />
         </AnimatedG>
       </Svg>
-      <Text style={[styles.value, { color: centerColor, marginTop: -size * 0.2 }]}>{v.toFixed(1)}</Text>
+      <Text style={[styles.value, { color: centerColor, marginTop: -size * 0.2 }]}>{Math.trunc(v)}</Text>
       {label ? <Text style={styles.label}>{label}</Text> : null}
       {caption ? <Text style={styles.caption}>{caption}</Text> : null}
     </View>
