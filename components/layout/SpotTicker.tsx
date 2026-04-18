@@ -41,21 +41,28 @@ export function SpotTicker() {
 function SpotCell({ quote }: { quote: TickerQuote }) {
   const meta = META[quote.series];
   const today = quote.today.value;
-  const prev = quote.yearAgo?.value;
-  const pct = prev && prev > 0 ? ((today - prev) / prev) * 100 : null;
-  const up = (pct ?? 0) >= 0;
-  const chColor = up ? theme.green : theme.red;
+  const prevDay = quote.yesterday?.value;
+  const prevYr = quote.yearAgo?.value;
+  const daily = prevDay && prevDay > 0 ? ((today - prevDay) / prevDay) * 100 : null;
+  const yoy = prevYr && prevYr > 0 ? ((today - prevYr) / prevYr) * 100 : null;
   return (
     <View style={styles.cell}>
       <Text style={[styles.label, { color: meta.color }]}>{meta.label.toUpperCase()}</Text>
       <Text style={styles.price}>{formatUsd(today, meta.digits)}</Text>
-      {pct != null ? (
-        <View style={styles.change}>
-          <Feather name={up ? 'arrow-up' : 'arrow-down'} size={12} color={chColor} />
-          <Text style={[styles.changeText, { color: chColor }]}>{formatSignedPct(pct, 1)}</Text>
-          <Text style={styles.yoy}>YoY</Text>
-        </View>
-      ) : null}
+      {daily != null ? <DeltaChip pct={daily} /> : null}
+      {yoy != null ? <DeltaChip pct={yoy} suffix="YoY" /> : null}
+    </View>
+  );
+}
+
+function DeltaChip({ pct, suffix }: { pct: number; suffix?: string }) {
+  const up = pct >= 0;
+  const color = up ? theme.green : theme.red;
+  return (
+    <View style={styles.change}>
+      <Feather name={up ? 'arrow-up' : 'arrow-down'} size={12} color={color} />
+      <Text style={[styles.changeText, { color }]}>{formatSignedPct(pct, 1)}</Text>
+      {suffix ? <Text style={styles.yoy}>{suffix}</Text> : null}
     </View>
   );
 }

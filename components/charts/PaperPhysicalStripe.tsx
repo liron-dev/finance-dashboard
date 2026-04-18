@@ -8,12 +8,12 @@ type Props = {
   ratio: number; // paper oz / physical oz
 };
 
-// Felix's visual: a horizontal bar split into "Physical" (metal color) on the
-// left and "Paper" (metal color, dim) filling the rest — width of each block
-// proportional to the ratio.  One unit physical = `ratio` units paper.
+// Felix's visual: a horizontal bar with "Paper" (grey) filling most of the
+// width on the LEFT and "Physical" (metal color) as a small block on the
+// RIGHT — widths proportional to the ratio. One unit physical = `ratio` units paper.
 export function PaperPhysicalStripe({ metal, ratio }: Props) {
   const metalColor = metal === 'gold' ? theme.yellow : '#D4D4D8';
-  const paperColor = metal === 'gold' ? theme.yellowDim : '#71717A';
+  const paperColor = '#71717A';
 
   const total = 1 + Math.max(0, ratio);
   const physPct = (1 / total) * 100;
@@ -32,16 +32,6 @@ export function PaperPhysicalStripe({ metal, ratio }: Props) {
       <View style={styles.bar}>
         <View
           style={{
-            width: `${physPct}%` as any,
-            backgroundColor: metalColor,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Text style={styles.segLabel}>1×</Text>
-        </View>
-        <View
-          style={{
             width: `${paperPct}%` as any,
             backgroundColor: paperColor,
             alignItems: 'center',
@@ -51,16 +41,26 @@ export function PaperPhysicalStripe({ metal, ratio }: Props) {
         >
           <Text style={[styles.segLabel, { color: theme.textPrimary }]}>{ratio.toFixed(1)}×</Text>
         </View>
+        <View
+          style={{
+            width: `${physPct}%` as any,
+            backgroundColor: metalColor,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={styles.segLabel}>1×</Text>
+        </View>
       </View>
 
       <View style={styles.legend}>
         <View style={styles.legendItem}>
-          <View style={[styles.dot, { backgroundColor: metalColor }]} />
-          <Text style={styles.legendText}>Physical (vaulted)</Text>
-        </View>
-        <View style={styles.legendItem}>
           <View style={[styles.dot, { backgroundColor: paperColor, opacity: 0.55 }]} />
           <Text style={styles.legendText}>Paper (futures OI)</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.dot, { backgroundColor: metalColor }]} />
+          <Text style={styles.legendText}>Physical (vaulted)</Text>
         </View>
       </View>
 

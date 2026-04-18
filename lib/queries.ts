@@ -183,6 +183,7 @@ export type TickerSymbol = 'GOLD_SPOT' | 'SILVER_SPOT' | 'SPX_SPOT' | 'NDX_SPOT'
 export type TickerQuote = {
   series: TickerSymbol;
   today: MacroRow;
+  yesterday: MacroRow | null;
   yearAgo: MacroRow | null;
 };
 
@@ -215,6 +216,8 @@ export async function fetchSpotTicker(): Promise<SpotData> {
     const series = rows.filter((r) => r.series_id === sym);
     if (!series.length) continue;
     const today = series[0];
+    // Previous trading day = next row in the series (already sorted desc).
+    const yesterday: MacroRow | null = series[1] ?? null;
     // Find the row closest to 365 days before `today`
     const target = new Date(today.date);
     target.setDate(target.getDate() - 365);
@@ -230,7 +233,7 @@ export async function fetchSpotTicker(): Promise<SpotData> {
     }
     // Accept only if within 14 days of the exact 1-year mark
     if (yearAgo && bestDiff > 14 * 86400000) yearAgo = null;
-    quotes.push({ series: sym, today, yearAgo });
+    quotes.push({ series: sym, today, yesterday, yearAgo });
   }
   return { quotes };
 }
