@@ -1,0 +1,20 @@
+{
+  "buildCommand": "npx expo export --platform web",
+  "outputDirectory": "dist",
+  "framework": null,
+  "installCommand": "npm install --legacy-peer-deps",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/:path((?!_expo|assets|.*\\..*).*)", "destination": "/" }
+  ],
+  "headers": [
+    {
+      "source": "/_expo/static/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/(.*)\\.(png|svg|ico|woff2?|ttf|jpg|jpeg)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ]
+}
