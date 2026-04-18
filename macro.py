@@ -16,7 +16,7 @@ FRED_HISTORY_YEARS = 2
 SPOT_TICKERS = {"GOLD_SPOT": "GC=F", "SILVER_SPOT": "SI=F"}
 SPOT_HISTORY_YEARS = 5
 CREDIT_MANAGERS = ["BLK", "BX", "OWL", "APO", "KKR", "ARES"]
-COT_URL = "https://publicreporting.cftc.gov/resource/72hh-3qpy.json"
+COT_URL = "https://publicreporting.cftc.gov/resource/kh3c-gbw2.json"  # Disaggregated Futures+Options Combined
 COT_METALS = {"gold": ("GOLD", "088691"), "silver": ("SILVER", "084691")}
 COT_HISTORY_YEARS = 5
 COT_INDEX_LOOKBACK_YEARS = 3
@@ -99,6 +99,15 @@ def fetch_credit_managers() -> tuple[list[dict], list[dict]]:
 
 # ── 4. CFTC COT positioning ─────────────────────────────────────────────────
 def fetch_cot() -> list[dict]:
+    """Williams COT Index on Commercial Long Ratio, 3yr rolling min-max.
+
+    Uses the Disaggregated Futures+Options Combined report.
+    Commercial = Producer/Merchant + Swap Dealer (hedgers / "smart money").
+    Long Ratio = comm_long / (comm_long + comm_short)  — 0..1 scale.
+    Low reading = commercials leaning heavily short (institutions selling).
+    High reading = commercials leaning long (institutions buying).
+    Matches the Goat Academy "Smart Money Meter" convention.
+    """
     rows = []
     cutoff = (date.today() - timedelta(days=COT_HISTORY_YEARS * 365)).isoformat()
     for metal_key, (commodity_name, contract_code) in COT_METALS.items():
@@ -107,7 +116,11 @@ def fetch_cot() -> list[dict]:
                 "$where": f"cftc_contract_market_code='{contract_code}' AND report_date_as_yyyy_mm_dd>'{cutoff}'",
                 "$order": "report_date_as_yyyy_mm_dd ASC",
                 "$limit": 5000,
-                "$select": "report_date_as_yyyy_mm_dd,m_money_positions_long_all,m_money_positions_short_all,open_interest_all"
+                "$select": ("report_date_as_yyyy_mm_dd,"
+                            "prod_merc_positions_long,prod_merc_positions_short,"
+                            "swap_positions_long_all,swap__positions_short_all,"
+                            "m_money_positions_long_all,m_money_positions_short_all,"
+                            "open_interest_all")
             }, timeout=30)
             resp.raise_for_status()
             data = resp.json()
@@ -115,31 +128,44 @@ def fetch_cot() -> list[dict]:
                 print(f"  [!] COT {metal_key}: no data", file=sys.stderr)
                 continue
 
-            # Parse rows (filtered by contract code, so no duplicates)
             parsed = []
             for r in data:
+                pm_long = int(r["prod_merc_positions_long"])
+                pm_short = int(r["prod_merc_positions_short"])
+                sw_long = int(r["swap_positions_long_all"])
+                sw_short = int(r["swap__positions_short_all"])
                 mm_long = int(r["m_money_positions_long_all"])
                 mm_short = int(r["m_money_positions_short_all"])
+                oi = int(r["open_interest_all"])
+                comm_long = pm_long + sw_long
+                comm_short = pm_short + sw_short
+                comm_lr = comm_long / (comm_long + comm_short) if (comm_long + comm_short) else 0.0
                 parsed.append({
                     "metal": metal_key,
                     "report_date": r["report_date_as_yyyy_mm_dd"][:10],
                     "mm_long": mm_long, "mm_short": mm_short,
                     "mm_net": mm_long - mm_short,
-                    "open_interest": int(r["open_interest_all"]),
-                    "cot_index": None
+                    "open_interest": oi,
+                    "_comm_lr": comm_lr,
+                    "cot_index": None,
                 })
 
-            # Compute COT Index: 100 * (current_net - min_3yr) / (max_3yr - min_3yr)
-            lookback_cutoff = (date.today() - timedelta(days=COT_INDEX_LOOKBACK_YEARS * 365)).isoformat()
-            nets_3yr = [p["mm_net"] for p in parsed if p["report_date"] >= lookback_cutoff]
-            if nets_3yr:
-                min_net, max_net = min(nets_3yr), max(nets_3yr)
-                for p in parsed:
-                    if p["report_date"] >= lookback_cutoff:
-                        if max_net == min_net:
-                            p["cot_index"] = 50.0
-                        else:
-                            p["cot_index"] = round(100 * (p["mm_net"] - min_net) / (max_net - min_net), 2)
+            # Rolling Williams COT on Commercial Long Ratio: for each row, find
+            # min/max over prior N weeks (including itself), then
+            # index = 100 * (v - min) / (max - min).
+            window = COT_INDEX_LOOKBACK_YEARS * 52
+            for i, p in enumerate(parsed):
+                start = max(0, i - window + 1)
+                w = [q["_comm_lr"] for q in parsed[start:i + 1]]
+                mn, mx = min(w), max(w)
+                if mx == mn:
+                    p["cot_index"] = 50.0
+                else:
+                    p["cot_index"] = round(100 * (p["_comm_lr"] - mn) / (mx - mn), 2)
+
+            # Drop scratch field before returning
+            for p in parsed:
+                p.pop("_comm_lr", None)
 
             rows.extend(parsed)
             latest = parsed[-1]

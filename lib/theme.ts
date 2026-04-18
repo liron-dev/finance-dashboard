@@ -52,6 +52,8 @@ export const creditZone = {
   payrollsMoMK: (v: number): Zone => (v > 150 ? 'green' : v > 0 ? 'amber' : 'red'),
   pceYoYPct: (v: number): Zone => (v < 2.5 ? 'green' : v < 3.5 ? 'amber' : 'red'),
   bbbSpreadPct: (v: number): Zone => (v < 1.5 ? 'green' : v < 2.5 ? 'amber' : 'red'),
+  // Williams Commercial COT Index: low = commercials heavily short (bearish
+  // for institutions; contrarian bullish for price), high = commercials long.
   cotIndex: (v: number): Zone =>
     v < 20 ? 'red' : v < 40 ? 'amber' : v < 60 ? 'neutral' : v < 80 ? 'amber' : 'green',
   comexStress: (v: number): Zone => (v < 30 ? 'green' : v < 65 ? 'amber' : 'red'),
@@ -61,7 +63,7 @@ export const zoneColor = (z: Zone): string =>
   z === 'green' ? theme.green : z === 'amber' ? theme.amber : z === 'red' ? theme.red : theme.textMuted;
 
 export const cotLabel = (v: number): string =>
-  v < 20 ? 'EXTREME OVERSOLD' : v < 40 ? 'OVERSOLD' : v < 60 ? 'NEUTRAL' : v < 80 ? 'BULLISH' : 'EXTREME BULLISH';
+  v < 20 ? 'EXTREME SELLING' : v < 40 ? 'MORE SELLING THAN BUYING' : v < 60 ? 'NEUTRAL' : v < 80 ? 'MORE BUYING THAN SELLING' : 'EXTREME BUYING';
 
 export const cotInstitutionStance = (v: number): string =>
-  v < 20 ? 'INSTITUTIONS ARE BUYING' : v < 40 ? 'INSTITUTIONS LEANING LONG' : v < 60 ? 'NEUTRAL' : v < 80 ? 'INSTITUTIONS LEANING SHORT' : 'INSTITUTIONS ARE SELLING';
+  v < 20 ? 'INSTITUTIONS ARE SELLING' : v < 40 ? 'MORE SELLING THAN BUYING' : v < 60 ? 'NEUTRAL' : v < 80 ? 'MORE BUYING THAN SELLING' : 'INSTITUTIONS ARE BUYING';
