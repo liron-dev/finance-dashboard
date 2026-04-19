@@ -200,25 +200,28 @@ const TICKER_ORDER: TickerSymbol[] = [
 ];
 
 export async function fetchSpotTicker(): Promise<SpotData> {
-  // Pull ~400 days of history for each symbol so we can reliably find
-  // a trading day roughly 365 days prior for the YoY change.
+  // One query per ticker: Supabase's default 1000-row cap on a combined
+  // .in() query truncates the oldest rows, leaving ~9mo of data per ticker
+  // which is too short to look up the 365-day-ago row for YoY.
   const since = isoAgo(400);
-  const { data } = await supabase
-    .from('macro_indicators')
-    .select('*')
-    .in('series_id', TICKER_ORDER)
-    .gte('date', since)
-    .order('date', { ascending: false });
-  const rows = (data as MacroRow[]) ?? [];
+  const perSeries = await Promise.all(
+    TICKER_ORDER.map((sym) =>
+      supabase
+        .from('macro_indicators')
+        .select('*')
+        .eq('series_id', sym)
+        .gte('date', since)
+        .order('date', { ascending: false })
+        .limit(500)
+        .then(({ data }) => [sym, (data as MacroRow[]) ?? []] as const),
+    ),
+  );
 
   const quotes: TickerQuote[] = [];
-  for (const sym of TICKER_ORDER) {
-    const series = rows.filter((r) => r.series_id === sym);
+  for (const [sym, series] of perSeries) {
     if (!series.length) continue;
     const today = series[0];
-    // Previous trading day = next row in the series (already sorted desc).
     const yesterday: MacroRow | null = series[1] ?? null;
-    // Find the row closest to 365 days before `today`
     const target = new Date(today.date);
     target.setDate(target.getDate() - 365);
     const targetMs = target.getTime();
@@ -231,7 +234,6 @@ export async function fetchSpotTicker(): Promise<SpotData> {
         yearAgo = r;
       }
     }
-    // Accept only if within 14 days of the exact 1-year mark
     if (yearAgo && bestDiff > 14 * 86400000) yearAgo = null;
     quotes.push({ series: sym, today, yesterday, yearAgo });
   }
