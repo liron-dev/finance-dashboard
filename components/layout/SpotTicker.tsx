@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 import { theme } from '@/lib/theme';
 import { fetchSpotTicker, SpotData, TickerQuote, TickerSymbol } from '@/lib/queries';
 import { formatUsd, formatSignedPct, daysAgo } from '@/lib/format';
 import { FRESHNESS } from '@/lib/constants';
 
-type Meta = { label: string; color: string; digits: number; prefix?: string };
+type Meta = { label: string; color: string; digits: number };
 
 const META: Record<TickerSymbol, Meta> = {
   GOLD_SPOT: { label: 'Gold', color: theme.yellow, digits: 2 },
@@ -31,6 +30,7 @@ export function SpotTicker() {
   const stack = width < theme.breakpoints.md;
   return (
     <View style={[styles.wrap, stack && styles.stack]}>
+      <Text style={styles.spotTag}>SPOT</Text>
       {data.quotes.map((q) => (
         <SpotCell key={q.series} quote={q} />
       ))}
@@ -47,22 +47,32 @@ function SpotCell({ quote }: { quote: TickerQuote }) {
   const yoy = prevYr && prevYr > 0 ? ((today - prevYr) / prevYr) * 100 : null;
   return (
     <View style={styles.cell}>
-      <Text style={[styles.label, { color: meta.color }]}>{meta.label.toUpperCase()}</Text>
+      <Text style={[styles.label, { color: meta.color }]}>{meta.label}</Text>
       <Text style={styles.price}>{formatUsd(today, meta.digits)}</Text>
-      {daily != null ? <DeltaChip pct={daily} /> : null}
-      {yoy != null ? <DeltaChip pct={yoy} suffix="YoY" /> : null}
+      {daily != null ? <DailyChip pct={daily} /> : null}
+      {yoy != null ? <YoYChip pct={yoy} /> : null}
     </View>
   );
 }
 
-function DeltaChip({ pct, suffix }: { pct: number; suffix?: string }) {
+function DailyChip({ pct }: { pct: number }) {
   const up = pct >= 0;
   const color = up ? theme.green : theme.red;
   return (
-    <View style={styles.change}>
-      <Feather name={up ? 'arrow-up' : 'arrow-down'} size={12} color={color} />
-      <Text style={[styles.changeText, { color }]}>{formatSignedPct(pct, 1)}</Text>
-      {suffix ? <Text style={styles.yoy}>{suffix}</Text> : null}
+    <Text style={[styles.dailyText, { color }]}>
+      {up ? '↗' : '↘'}{formatSignedPct(pct, 1)}
+    </Text>
+  );
+}
+
+function YoYChip({ pct }: { pct: number }) {
+  const up = pct >= 0;
+  const color = up ? theme.green : theme.red;
+  const bg = up ? 'rgba(34,197,94,0.22)' : 'rgba(239,68,68,0.22)';
+  return (
+    <View style={[styles.yoyChip, { backgroundColor: bg }]}>
+      <Text style={[styles.yoyLabel, { color }]}>YoY</Text>
+      <Text style={[styles.yoyText, { color }]}>{formatSignedPct(pct, 1)}</Text>
     </View>
   );
 }
@@ -70,9 +80,10 @@ function DeltaChip({ pct, suffix }: { pct: number; suffix?: string }) {
 const styles = StyleSheet.create({
   wrap: {
     flexDirection: 'row',
-    gap: theme.spacing.xl,
+    alignItems: 'center',
+    gap: theme.spacing.lg,
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: 6,
     backgroundColor: theme.bgCard,
     borderBottomWidth: 1,
     borderBottomColor: theme.border,
@@ -80,10 +91,26 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   } as any,
   stack: { gap: theme.spacing.md, rowGap: 6 } as any,
-  cell: { flexDirection: 'row', alignItems: 'center', gap: 8 } as any,
-  label: { ...theme.type.label },
-  price: { ...theme.type.h3, color: theme.textPrimary },
-  change: { flexDirection: 'row', alignItems: 'center', gap: 2 } as any,
-  changeText: { ...theme.type.h3 },
-  yoy: { ...theme.type.micro, color: theme.textMuted, marginLeft: 2 },
+  spotTag: {
+    fontSize: 10,
+    fontWeight: '600' as const,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.8,
+    color: theme.textMuted,
+    marginRight: 4,
+  },
+  cell: { flexDirection: 'row', alignItems: 'center', gap: 5 } as any,
+  label: { fontSize: 12, fontWeight: '700' as const },
+  price: { fontSize: 13, fontWeight: '700' as const, color: theme.textPrimary },
+  dailyText: { fontSize: 11, fontWeight: '700' as const },
+  yoyChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 4,
+  } as any,
+  yoyLabel: { fontSize: 9, fontWeight: '700' as const, opacity: 0.85 },
+  yoyText: { fontSize: 11, fontWeight: '700' as const },
 });
