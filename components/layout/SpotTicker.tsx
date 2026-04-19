@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   cell: { flexDirection: 'row', alignItems: 'center', gap: 7 } as any,
-  label: { ...theme.type.label },
+  label: { ...theme.type.h3, letterSpacing: 0.2 },
   price: { ...theme.type.h3, color: theme.textPrimary },
   dailyText: { ...theme.type.h3 },
   yoyChip: {
