@@ -50,20 +50,19 @@ function SpotCell({ quote }: { quote: TickerQuote }) {
       <Text style={[styles.label, { color: meta.color }]}>{meta.label.toUpperCase()}</Text>
       <Text style={styles.price}>{formatUsd(today, meta.digits)}</Text>
       {daily != null ? <DeltaChip pct={daily} /> : null}
-      {yoy != null ? <DeltaChip pct={yoy} prefix="YoY" /> : null}
+      {yoy != null ? <DeltaChip pct={yoy} suffix="YoY" /> : null}
     </View>
   );
 }
 
-function DeltaChip({ pct, prefix }: { pct: number; prefix?: string }) {
+function DeltaChip({ pct, suffix }: { pct: number; suffix?: string }) {
   const up = pct >= 0;
   const color = up ? theme.green : theme.red;
-  const bg = up ? 'rgba(34,197,94,0.14)' : 'rgba(239,68,68,0.14)';
   return (
-    <View style={[styles.change, { backgroundColor: bg }]}>
-      {prefix ? <Text style={[styles.yoy, { color }]}>{prefix}</Text> : null}
-      <Feather name={up ? 'arrow-up-right' : 'arrow-down-right'} size={11} color={color} />
+    <View style={styles.change}>
+      <Feather name={up ? 'arrow-up' : 'arrow-down'} size={12} color={color} />
       <Text style={[styles.changeText, { color }]}>{formatSignedPct(pct, 1)}</Text>
+      {suffix ? <Text style={styles.yoy}>{suffix}</Text> : null}
     </View>
   );
 }
@@ -84,14 +83,7 @@ const styles = StyleSheet.create({
   cell: { flexDirection: 'row', alignItems: 'center', gap: 8 } as any,
   label: { ...theme.type.label },
   price: { ...theme.type.h3, color: theme.textPrimary },
-  change: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: theme.radius.sm,
-  } as any,
+  change: { flexDirection: 'row', alignItems: 'center', gap: 2 } as any,
   changeText: { ...theme.type.h3 },
-  yoy: { ...theme.type.label, marginRight: 2 },
+  yoy: { ...theme.type.micro, color: theme.textMuted, marginLeft: 2 },
 });
