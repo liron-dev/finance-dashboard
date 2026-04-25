@@ -324,6 +324,15 @@ def push_all(macro_rows, spot_rows, managers, history, cot_rows, perf_rows):
         sb.table("cot_performance").insert(perf_rows).execute()
         print(f"[Supabase] cot_performance: {len(perf_rows)} rows replaced")
 
+    # Retention: prune rows older than per-table cutoffs
+    try:
+        import retention
+        retention.cleanup_macro(sb)
+        retention.cleanup_cot(sb)
+        retention.cleanup_credit_history(sb)
+    except Exception as e:
+        print(f"[warn] retention pass failed: {e}", file=sys.stderr)
+
 # ── 7. Entry point ──────────────────────────────────────────────────────────
 def main():
     ap = argparse.ArgumentParser(description="Macro indicators + credit managers + COT → Supabase")

@@ -13,6 +13,7 @@ import { applyFilter, PRESETS, detectPreset } from '@/lib/filters';
 import { theme } from '@/lib/theme';
 import { formatUsd, formatPct } from '@/lib/format';
 import type { FilterState, Preset, Stock } from '@/lib/types';
+import { EtfMatchPanel } from '@/components/pages/EtfMatchPanel';
 
 type SortKey = 'ticker' | 'roic' | 'gross_margin' | 'fcf_margin' | 'int_coverage' | 'pe_ratio' | 'price';
 type SortDir = 'asc' | 'desc';
@@ -53,6 +54,13 @@ export default function Stocks() {
       return (av - bv) * dir;
     });
   }, [all, filters, preset, sortKey, sortDir]);
+
+  // Hash filter state so EtfMatchPanel can detect when its result is stale.
+  // Sort changes don't affect the matched set, so they're excluded.
+  const filterHash = useMemo(
+    () => JSON.stringify({ preset, ...filters }),
+    [preset, filters],
+  );
 
   const isMobile = width < theme.breakpoints.sm;
   const latestDate = all?.[0]?.updated_at ?? null;
@@ -172,6 +180,12 @@ export default function Stocks() {
           )}
         </Card>
       )}
+
+      <View style={{ height: theme.spacing.md }} />
+
+      {all ? (
+        <EtfMatchPanel filtered={filtered} filterHash={filterHash} isMobile={isMobile} />
+      ) : null}
     </PageShell>
   );
 }

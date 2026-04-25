@@ -75,6 +75,11 @@ def push_comex(records: list[dict]):
     sb = _sb()
     sb.table("comex_inventory").upsert(records).execute()
     print(f"[Supabase] comex_inventory: {len(records)} rows upserted")
+    try:
+        import retention
+        retention.cleanup_comex(sb)
+    except Exception as e:
+        print(f"[warn] retention pass failed: {e}", file=sys.stderr)
 
 # ── Entry point ──────────────────────────────────────────────────────────────
 def main():

@@ -1,0 +1,1001 @@
+ticker,name,aum_usd
+VOO,Vanguard S&P 500 ETF,906081518567
+IVV,iShares Core S&P 500 ETF,783612717299
+SPY,State Street SPDR S&P 500 ETF,723394039899
+VTI,Vanguard Total Stock Market ETF,615138281082
+QQQ,Invesco QQQ Trust Series I,425953661185
+VEA,Vanguard FTSE Developed Markets ETF,217571728820
+VUG,Vanguard Growth ETF,210580472571
+IEFA,iShares Core MSCI EAFE ETF,183122635211
+VTV,Vanguard Value ETF,170696601199
+GLD,SPDR Gold Shares,166054096166
+BND,Vanguard Total Bond Market ETF,153193495792
+IEMG,iShares Core MSCI Emerging Markets ETF,150446694453
+VXUS,Vanguard Total International Stock ETF,145708691647
+AGG,iShares Core U.S. Aggregate Bond ETF,136383667637
+IWF,iShares Russell 1000 Growth ETF,124558286526
+VGT,Vanguard Information Technology ETF,121227170416
+VWO,Vanguard FTSE Emerging Markets ETF,119725670509
+IJH,iShares Core S&P Mid-Cap ETF,115458019985
+VIG,Vanguard Dividend Appreciation ETF,105227913247
+IJR,iShares Core S&P Small Cap ETF,100715338585
+XLK,State Street Technology Select Sector SPDR ETF,99361757560
+VO,Vanguard Mid-Cap ETF,98621560199
+RSP,Invesco S&P 500 Equal Weight ETF,88197558867
+ITOT,iShares Core S&P Total U.S. Stock Market ETF,87780281166
+SCHD,Schwab US Dividend Equity ETF,87511942127
+SGOV,iShares 0-3 Month Treasury Bond ETF,84159674990
+QQQM,Invesco NASDAQ 100 ETF,79388293186
+BNDX,Vanguard Total International Bond ETF,78443633091
+IWM,iShares Russell 2000 ETF,77540208474
+EFA,iShares MSCI EAFE ETF,76833295633
+VB,Vanguard Small-Cap ETF,76356748847
+VYM,Vanguard High Dividend Yield Index ETF,76310189327
+IAU,iShares Gold Trust,75425767640
+IWD,iShares Russell 1000 Value ETF,73321352516
+VT,Vanguard Total World Stock ETF,70006781054
+IVW,iShares S&P 500 Growth ETF,69258221865
+SCHX,Schwab U.S. Large-Cap ETF,67386686999
+VCIT,Vanguard Intermediate-Term Corporate Bond ETF,65368878152
+VEU,Vanguard FTSE All-World ex-US Index Fund,64343199003
+SCHF,Schwab International Equity ETF,63392424754
+IBIT,iShares Bitcoin Trust ETF,61262807059
+IXUS,iShares Core MSCI Total International Stock ETF,56678228336
+SCHG,Schwab U.S. Large-Cap Growth ETF,53904556658
+SMH,VanEck Semiconductor ETF,52912184239
+IWR,iShares Russell Midcap ETF,52237518133
+XLF,State Street Financial Select Sector SPDR ETF,51771642027
+VV,Vanguard Large-Cap ETF,50012249779
+QUAL,iShares MSCI USA Quality Factor ETF,49860232519
+IEF,iShares 7-10 Year Treasury Bond ETF,48756669297
+IVE,iShares S&P 500 Value ETF,48729575057
+SPYG,State Street SPDR Portfolio S&P 500 Growth ETF,48309745845
+BIL,State Street SPDR Bloomberg 1-3 Month T-Bill ETF,47080813411
+IWB,iShares Russell 1000 ETF,46433403403
+JEPI,JPMorgan Equity Premium Income ETF,45318247831
+BSV,Vanguard Short-Term Bond ETF,44595542189
+DIA,State Street SPDR Dow Jones Industrial Average ETF Trust,44163111976
+DFAC,Dimensional U.S. Core Equity 2 ETF,44114060257
+MUB,iShares National Muni Bond ETF,43611788715
+VCSH,Vanguard Short-Term Corporate Bond ETF,42460951442
+VTEB,Vanguard Tax-Exempt Bond ETF,42397477817
+TLT,iShares 20+ Year Treasury Bond ETF,42365093495
+VONG,Vanguard Russell 1000 Growth ETF,41996022800
+GOVT,iShares U.S. Treasury Bond ETF,41049820597
+SCHB,Schwab U.S. Broad Market ETF,40509304892
+VGIT,Vanguard Intermediate-Term Treasury ETF,40120931891
+DGRO,iShares Core Dividend Growth ETF,39374414366
+SLV,iShares Silver Trust,39037449834
+XLV,State Street Health Care Select Sector SPDR ETF,39022453173
+MBB,iShares MBS ETF,38992587920
+SPDW,State Street SPDR Portfolio Developed World ex-US ETF,38985121844
+XLE,State Street Energy Select Sector SPDR ETF,38276910709
+JPST,JPMorgan Ultra-Short Income ETF,37623276203
+VNQ,Vanguard Real Estate ETF,37230030428
+IUSB,iShares Core Total USD Bond Market ETF,36549885752
+JEPQ,JPMorgan NASDAQ Equity Premium Income ETF,36548705950
+VBR,Vanguard Small Cap Value ETF,34862472485
+LQD,iShares iBoxx $ Investment Grade Corporate Bond ETF,33523043990
+DYNF,iShares U.S. Equity Factor Rotation Active ETF,33365097207
+SPYV,State Street SPDR Portfolio S&P 500 Value ETF,33206635414
+CGDV,Capital Group Dividend Value ETF,32166539100
+GLDM,SPDR Gold Minishares Trust of beneficial interest,31613596258
+TQQQ,ProShares UltraPro QQQ,31608642596
+MGK,Vanguard Mega Cap Growth ETF,31521482734
+GDX,VanEck Gold Miners ETF,31273946085
+ACWI,iShares MSCI ACWI ETF,31161639151
+VGK,Vanguard FTSE Europe ETF,31081118780
+XLI,State Street Industrial Select Sector SPDR ETF,30543579820
+EFV,iShares MSCI EAFE Value ETF,30269854606
+IUSG,iShares Core S&P U.S. Growth ETF,29596104755
+IDEV,iShares Core MSCI International Developed Markets ETF,29057794736
+VGSH,Vanguard Short-Term Treasury ETF,28796137482
+BIV,Vanguard Intermediate-Term Bond ETF,28529133218
+VXF,Vanguard Extended Market ETF,28315603672
+EEM,iShares MSCI Emerging Markets ETF,27956207157
+SOXX,iShares Semiconductor ETF,27645636137
+JAAA,Janus Henderson AAA CLO ETF,26886246836
+MDY,State Street SPDR S&P MIDCAP 400 ETF Trust,26032171911
+XLC,State Street Communication Services Select Sector SPDR ETF,25739139375
+SHY,iShares 1-3 Year Treasury Bond ETF,25706387347
+FBND,Fidelity Total Bond ETF,25581474210
+AVUV,Avantis U.S. Small Cap Value ETF,25508885563
+USHY,iShares Broad USD High Yield Corporate Bond ETF,25433152883
+IUSV,iShares Core S&P US Value ETF,25287592195
+FNDX,Schwab Fundamental U.S. Large Company ETF,25251354409
+XLU,State Street Utilities Select Sector SPDR ETF,24597889675
+VOOG,Vanguard S&P 500 Growth ETF,23682437319
+MTUM,iShares MSCI USA Momentum Factor ETF,23274395385
+XLY,State Street Consumer Discretionary Select Sector SPDR ETF,23258205467
+USMV,iShares MSCI USA Min Vol Factor ETF,23130368751
+FNDF,Schwab Fundamental International Equity ETF,23030458274
+AVEM,Avantis Emerging Markets Equity ETF,22904884460
+DVY,iShares Select Dividend ETF,22555529294
+VBK,Vanguard Small-Cap Growth ETF,22475400114
+VOE,Vanguard Mid-Cap Value ETF,22217038741
+CGGR,Capital Group Growth ETF,22136180035
+SCHA,Schwab U.S. Small-Cap ETF,22045825678
+IGSB,iShares 1-5 Year Investment Grade Corporate Bond ETF,22023930859
+RDVY,First Trust Rising Dividend Achievers ETF,21796532150
+EMXC,iShares MSCI Emerging Markets ex China ETF,21479533747
+SDY,State Street SPDR S&P Dividend ETF,21066643418
+SHV,iShares Trust iShares 0-1 Year Treasury Bond ETF,20852609282
+EWJ,iShares MSCI Japan ETF,20726983574
+IYW,iShares U.S. Technology ETF,20541555340
+IWP,iShares Russell Mid-Cap Growth ETF,19811284865
+DFUS,Dimensional U.S. Equity Market ETF,19587565905
+EWY,iShares MSCI South Korea ETF,19558897897
+OEF,iShares S&P 100 ETF,19308679995
+VYMI,Vanguard International High Dividend Yield ETF,19073586433
+DFIV,Dimensional International Value ETF,19025671558
+AVDV,Avantis International Small Cap Value ETF,18960580987
+IEI,iShares 3-7 Year Treasury Bond ETF,18820374500
+IWV,iShares Russell 3000 ETF,18686331385
+VONV,Vanguard Russell 1000 Value ETF,18247414019
+VOT,Vanguard Mid-Cap Growth ETF,18216063683
+COWZ,Pacer US Cash Cows 100 ETF,18176958556
+IGIB,iShares 5-10 Year Investment Grade Corporate Bond ETF,17854921855
+HYG,iShares iBoxx $ High Yield Corporate Bond ETF,17528477350
+VTIP,Vanguard Short-Term Inflation-Protected Securities ETF,17498492682
+SPEM,State Street SPDR Portfolio Emerging Markets ETF,17481578450
+FTEC,Fidelity MSCI Information Technology Index ETF,17444136957
+USFR,WisdomTree Floating Rate Treasury Fund,17163619651
+SPHQ,Invesco S&P 500 Quality ETF,17116347523
+SPMD,State Street SPDR Portfolio S&P 400 Mid Cap ETF,17016284218
+USIG,iShares Broad USD Investment Grade Corporate Bond ETF,16994294189
+BINC,iShares Flexible Income Active ETF,16903201919
+VHT,Vanguard Health Care ETF,16564662605
+DGRW,WisdomTree US Quality Dividend Growth Fund,16459976863
+IWY,iShares Russell Top 200 Growth ETF,16442604330
+ESGU,iShares ESG Aware MSCI USA ETF,16284168327
+BBJP,JPMorgan BetaBuilders Japan ETF,16089555072
+DFAI,Dimensional International Core Equity Market ETF,15889313858
+AVDE,Avantis International Equity ETF,15706143589
+VTWO,Vanguard Russell 2000 ETF,15706061807
+SCHP,Schwab US TIPS ETF,15645047317
+MINT,PIMCO Enhanced Short Maturity Active Exchange-Traded Fund,15523366405
+PULS,PGIM Ultra Short Bond ETF,15518402643
+EFG,iShares MSCI EAFE Growth ETF,15433532397
+VMBS,Vanguard Mortgage-Backed Securities ETF,15257234328
+SCHV,Schwab U.S. Large-Cap Value ETF,15077863932
+SPSM,State Street SPDR Portfolio S&P 600 Small Cap ETF,15072359377
+GSLC,TR Activebeta US Large Cap Equity ETF,14966907151
+IWS,iShares Russell Mid-Cap Value ETF,14856010011
+STIP,iShares 0-5 Year TIPS Bond ETF,14851264845
+SPMO,Invesco S&P 500 Momentum ETF,14835886510
+EMB,iShares JP Morgan USD Emerging Markets Bond ETF,14712097190
+SCZ,iShares MSCI EAFE Small-Cap ETF,14663214657
+TIP,iShares TIPS Bond ETF,14584943453
+XLP,State Street Consumer Staples Select Sector SPDR ETF,14540625650
+DFUV,Dimensional US Marketwide Value ETF,14443680152
+FBTC,Fidelity Wise Origin Bitcoin Fund,14321323309
+SOXL,Direxion Daily Semiconductor Bull 3X ETF,14219411097
+ITA,iShares U.S. Aerospace & Defense ETF,14187526521
+SCHM,Schwab U.S. Mid-Cap ETF,14161200066
+PFF,iShares Preferred & Income Securities ETF,13962178609
+DFAS,Dimensional U.S. Small Cap ETF,13961074628
+IWO,iShares Russell 2000 Growth ETF,13656037773
+DFIC,Dimensional International Core Equity 2 ETF,13634414435
+DFAT,Dimensional U.S. Targeted Value ETF,13502766549
+HDV,iShares Core High Dividend ETF,13318723421
+IWN,iShares Russell 2000 Value ETF,13278621435
+IAGG,iShares Core International Aggregate Bond ETF,13142223127
+IQLT,iShares MSCI Intl Quality Factor ETF,13026307947
+PYLD,PIMCO Multisector Bond Active Exchange-Traded Fund,12891795251
+SCHR,Schwab Intermediate-Term US Treasury ETF,12877655984
+SPTM,State Street SPDR Portfolio S&P 1500 Composite Stock Market ETF,12798649160
+VFH,Vanguard Financials ETF,12740457727
+PAVE,Global X U.S. Infrastructure Development ETF,12699137608
+SCHE,Schwab Emerging Markets Equity ETF,12420376519
+IGV,iShares Expanded Tech-Software Sector ETF,12295525806
+ESGV,Vanguard ESG U.S. Stock ETF,12272262500
+BAI,iShares A.I. Innovation and Tech Active ETF,12220580575
+TLH,iShares 10-20 Year Treasury Bond ETF,12157384235
+MOAT,VanEck Morningstar Wide Moat ETF,12156249806
+SCHO,Schwab Short-Term US Treasury ETF,12043060612
+AVUS,Avantis U.S. Equity ETF,11961732971
+AMLP,Alerian MLP ETF,11932021356
+MGV,Vanguard Mega Cap Value ETF,11817162369
+EWZ,iShares MSCI Brazil ETF,11751088018
+VSS,Vanguard FTSE All-World ex-US Small-Cap ETF,11648052078
+GBTC,Grayscale Bitcoin Trust ETF,11643228230
+DFAX,Dimensional World ex U.S. Core Equity 2 ETF,11520414106
+VLUE,iShares MSCI USA Value Factor ETF,11495146764
+ESGD,iShares ESG Aware MSCI EAFE ETF,11467874890
+NOBL,ProShares S&P 500 Dividend Aristocrats ETF,11376503809
+AVLV,Avantis U.S. Large Cap Value ETF,11336532071
+DUHP,Dimensional US High Profitability ETF,11312269107
+JCPB,JPMorgan Core Plus Bond ETF,11280265409
+QLD,ProShares Ultra QQQ,11221225074
+ACWX,iShares MSCI ACWI ex U.S. ETF,11215861093
+DFAU,Dimensional US Core Equity Market ETF,11213276767
+BOXX,Alpha Architect 1-3 Month Box ETF,11099408943
+SUB,iShares Short-Term National Muni Bond ETF,10998008750
+SPIB,State Street SPDR Portfolio Intermediate Term Corporate Bond ETF,10991025042
+SDVY,First Trust SMID Cap Rising Dividend Achievers ETF,10894246253
+QQQI,NEOS Nasdaq 100 High Income ETF,10757356514
+PBUS,Invesco MSCI USA ETF,10696304801
+XLG,Invesco S&P 500 Top 50 ETF,10584812174
+IJK,iShares S&P Mid-Cap 400 Growth ETF,10577658202
+BBCA,JPMorgan BetaBuilders Canada ETF,10563788264
+SPHY,State Street SPDR Portfolio High Yield Bond ETF,10541080169
+JIRE,JPMorgan International Research Enhanced Equity ETF,10484813436
+SCHI,Schwab 5-10 Year Corporate Bond ETF,10434087645
+SPTL,State Street SPDR Portfolio Long Term Treasury ETF,10432020669
+IGF,iShares Global Infrastructure ETF,10346497769
+FNDA,Schwab Fundamental U.S. Small Company ETF,10163544614
+SPTI,State Street SPDR Portfolio Intermediate Term Treasury ETF,10124619961
+CGUS,Capital Group Core Equity ETF,10108831368
+CIBR,First Trust NASDAQ Cybersecurity ETF,10104202298
+SCHZ,Schwab US Aggregate Bond ETF,10081008217
+SPSB,State Street SPDR Portfolio Short Term Corporate Bond ETF,10042610615
+VGLT,Vanguard Long-Term Treasury ETF,10020377714
+CGGO,Capital Group Global Growth Equity ETF,9997527649
+GDXJ,VanEck Junior Gold Miners ETF,9994485717
+SCHH,Schwab U.S. REIT ETF,9946008713
+SPAB,State Street SPDR Portfolio Aggregate Bond ETF,9901278086
+PVAL,Putnam Focused Large Cap Value ETF,9859167896
+DFCF,Dimensional Core Fixed Income ETF,9843970714
+ONEQ,Fidelity Nasdaq Composite Index ETF,9770929658
+EZU,iShares MSCI Eurozone ETF,9763062028
+VDE,Vanguard Energy ETF,9707850834
+AIRR,First Trust RBA American Industrial Renaissance ETF,9628261949
+GRID,First Trust Nasdaq Clean Edge Smart GRID Infrastructure Index,9431838021
+FNDE,Schwab Fundamental Emerging Markets Equity ETF,9425948403
+PRF,Invesco RAFI US 1000 ETF,9326491854
+MGC,Vanguard Mega Cap ETF,9257212545
+FLOT,iShares Floating Rate Bond ETF,9249287293
+IGM,iShares Expanded Tech Sector ETF,9208774922
+FDVV,Fidelity High Dividend ETF,9157454994
+JGRO,JPMorgan Active Growth ETF,9127307251
+BUFR,FT Vest Laddered Buffer ETF,9122840754
+FENI,Fidelity Enhanced International ETF,9119552399
+IEUR,iShares Core MSCI Europe ETF,9019934641
+SPYI,NEOS S&P 500 High Income ETF,9018712871
+BBEU,JPMorgan BetaBuilders Europe ETF,9013744013
+VIGI,Vanguard International Dividend Appreciation ETF,8925962403
+VPU,Vanguard Utilities ETF,8847725049
+DFAE,Dimensional Emerging Core Equity Market ETF,8841608351
+XBI,State Street SPDR S&P Biotech ETF,8808024692
+DBEF,Xtrackers MSCI EAFE Hedged Equity ETF,8788429988
+PAAA,PGIM AAA CLO ETF,8784072436
+RWL,Invesco S&P 500 Revenue ETF,8658739816
+JPIE,JPMorgan Income ETF,8657981089
+SHLD,Global X Defense Tech ETF,8606864062
+DFEM,Dimensional Emerging Markets Core Equity 2 ETF,8593519250
+IBB,iShares Biotechnology ETF,8481679811
+IJJ,iShares S&P Mid-Cap 400 Value ETF,8478600253
+PPA,Invesco Aerospace & Defense ETF,8435704058
+IDV,iShares International Select Dividend ETF,8364848066
+SGOL,abrdn Physical Gold Shares ETF,8360206584
+IOO,iShares Global 100 ETF,8338293434
+AIQ,Global X Artificial Intelligence & Technology ETF,8337433198
+QYLD,Global X NASDAQ 100 Covered Call ETF,8332991232
+EWT,iShares MSCI Taiwan ETF,8313789162
+FVD,First Trust Value Line Dividend Index Fund,8292142733
+VUSB,Vanguard Ultra-Short Bond ETF,8205392000
+VPL,Vanguard FTSE Pacific ETF,8178264517
+THRO,iShares U.S. Thematic Rotation Active ETF,8078213862
+URTH,iShares MSCI World ETF,8043281769
+XLRE,State Street Real Estate Select Sector SPDR ETF,7992316987
+VDC,Vanguard Consumer Staples ETF,7975433510
+FTCS,First Trust Capital Strength ETF,7970472565
+BOND,PIMCO Active Bond Exchange-Traded Fund,7868418162
+COPX,Global X Copper Miners ETF,7764251893
+XLB,State Street Materials Select Sector SPDR ETF,7742001585
+IJS,iShares S&P Small-Cap 600 Value ETF,7740675217
+BBUS,JPMorgan BetaBuilders U.S. Equity ETF,7696196187
+VIS,Vanguard Industrials ETF,7689627186
+URA,Global X Uranium ETF,7682879493
+VONE,Vanguard Russell 1000 ETF,7605506650
+VCLT,Vanguard Long-Term Corporate Bond ETF,7592983784
+SHYG,iShares 0-5 Year High Yield Corporate Bond ETF,7574868004
+GUNR,FlexShares Morningstar Global Upstream Natural Resources Index Fund,7555822223
+CGCP,Capital Group Core Plus Income ETF,7548179223
+IXN,iShares Global Tech ETF,7476316928
+GBIL,ACCESS TREASURY 0-1 YEAR ETF,7475115253
+DFSV,Dimensional US Small Cap Value ETF,7472772328
+JMUB,JPMorgan Municipal ETF,7422798851
+IAUM,iShares Gold Trust Micro ETF of Benef Interest,7412813661
+SPLV,Invesco S&P 500 Low Volatility ETF,7377295944
+JQUA,JPMorgan U.S. Quality Factor ETF,7359613195
+VBIL,Vanguard 0-3 Month Treasury Bill ETF,7350210000
+JBND,JPMorgan Active Bond ETF,7344958547
+FDL,First Trust Morningstar Dividend Leaders Index Fund,7295283893
+ICSH,iShares Ultra Short Duration Bond Active ETF,7266366770
+SPYD,State Street SPDR Portfolio S&P 500 High Dividend ETF,7265137003
+ETHA,iShares Ethereum Trust ETF,7261577972
+HEFA,iShares Currency Hedged MSCI EAFE ETF,7251212883
+IJT,iShares S&P Small-Cap 600 Growth ETF,7207888997
+JNK,State Street SPDR Bloomberg High Yield Bond ETF,7124908277
+ARKK,ARK Innovation ETF,7115670330
+JGLO,JPMorgan Global Select Equity ETF Global Select Equity ETF,7083807534
+SSO,ProShares Ultra S&P 500,7067734616
+TBIL,F/m US Treasury 3 Month Bill Fund,7044305377
+MCHI,iShares MSCI China ETF,7037839110
+SPMB,State Street SPDR Portfolio Mortgage Backed Bond ETF,6956954531
+JMTG,JPMorgan Mortgage-Backed Securities ETF,6881815903
+DIVO,Amplify CWP Enhanced Dividend Income ETF,6877305722
+FNGU,MicroSectors FANG+ 3 Leveraged ETNs,6866878873
+FELC,Fidelity Enhanced Large Cap Core ETF,6860501324
+TCAF,T. Rowe Price Capital Appreciation Equity ETF,6789347759
+TFLO,iShares Treasury Floating Rate Bond ETF,6734443595
+AKRE,Akre Focus ETF,6671313320
+JMBS,Janus Henderson Mortgage-Backed Securities ETF,6651432702
+VFLO,VictoryShares Free Cash Flow ETF,6617583332
+XMMO,Invesco S&P MidCap Momentum ETF,6614201949
+ESGE,iShares ESG Aware MSCI EM ETF,6591078982
+INDA,iShares MSCI India ETF,6586196652
+BKLN,Invesco Senior Loan ETF,6573273726
+VCRB,Vanguard Core Bond ETF,6567220800
+KWEB,KraneShares CSI China Internet ETF,6552939952
+DFSD,Dimensional Short-Duration Fixed Income ETF,6539942275
+FMDE,Fidelity Enhanced Mid Cap ETF,6474617757
+FTSM,First Trust Enhanced Short Maturity ETF,6458886791
+BBIN,JPMorgan BetaBuilders International Equity ETF,6404136986
+BBAX,JPMorgan BetaBuilders Developed Asia Pacific ex-Japan ETF,6398139316
+FPE,First Trust Preferred Securities & Income ETF,6364492326
+JAVA,JPMorgan Active Value ETF,6330488312
+SMBS,Schwab Mortgage-Backed Securities ETF,6326726179
+XAR,State Street SPDR S&P Aerospace & Defense ETF,6291443560
+VOOV,Vanguard S&P 500 Value ETF,6278963200
+VSGX,Vanguard ESG International Stock ETF,6248340000
+FXI,iShares China Large-Cap ETF,6232333269
+JMST,JPMorgan Ultra-Short Municipal Income ETF,6222704809
+DXJ,WisdomTree Japan Hedged Equity Fund,6218513790
+VCR,Vanguard Consumer Discretionary ETF,6201121374
+LMBS,First Trust Low Duration Opportunities ETF,6166188259
+SPTS,State Street SPDR Portfolio Short Term Treasury ETF,6164395570
+FBCG,Fidelity Blue Chip Growth ETF,6039500714
+VWOB,Vanguard Emerging Markets Government Bond ETF,6034133215
+VOX,Vanguard Communication Services ETF,6012502911
+CGBL,Capital Group Core Balanced ETF,5996616670
+DLN,WisdomTree U.S. LargeCap Dividend Fund,5958157311
+PDBC,Invesco Optimum Yield Diversified Commodity Strategy No K-1 ETF,5933543326
+BLV,Vanguard Long-Term Bond ETF,5925906000
+CGMU,Capital Group Municipal Income ETF,5803687214
+SIL,Global X Silver Miners ETF,5790645650
+DIHP,Dimensional International High Profitability ETF,5779394544
+DFLV,Dimensional US Large Cap Value ETF,5743919395
+SPXL,Direxion Daily S&P 500 Bull 3X ETF,5723240162
+GSIE,Goldman Sachs ActiveBeta International Equity ETF,5691907881
+ICVT,iShares Convertible Bond ETF,5665482091
+DFIS,Dimensional International Small Cap ETF,5644539247
+SCHC,Schwab International Small-Cap Equity ETF,5641245250
+CGXU,Capital Group International Focus Equity ETF,5498940310
+EFAV,iShares MSCI EAFE Min Vol Factor ETF,5454594841
+SIVR,abrdn Physical Silver Shares ETF,5453627406
+CWB,State Street SPDR Bloomberg Convertible Securities ETF,5420897151
+RECS,Columbia Research Enhanced Core ETF,5372613518
+BKLC,BNY Mellon US Large Cap Core Equity ETF,5360314166
+KBWB,Invesco KBW Bank ETF,5336234168
+JHMM,John Hancock Multifactor Mid Cap ETF,5266573214
+XMHQ,Invesco S&P MidCap Quality ETF,5261633734
+FELG,Fidelity Enhanced Large Cap Growth ETF,5259182210
+EWC,iShares MSCI Canada ETF,5201062940
+NLR,VanEck Uranium and Nuclear ETF,5192307919
+SCHK,Schwab 1000 Index ETF,5177325035
+EVTR,Eaton Vance Total Return Bond ETF,5145072564
+ILF,iShares Latin America 40 ETF,5129958984
+DSI,iShares ESG MSCI KLD 400 ETF,5079600278
+FDN,First Trust Dow Jones Internet Index Fund,5071695266
+EMLC,VanEck J. P. Morgan EM Local Currency Bond ETF,5023054446
+XME,State Street SPDR S&P Metals & Mining ETF,4998978395
+UPRO,ProShares UltraPro S&P500,4925377908
+BLCR,iShares Large Cap Core Active ETF,4924621448
+GNR,State Street SPDR S&P Global Natural Resources ETF,4866075557
+TSLL,Direxion Daily TSLA Bull 2X ETF,4857120677
+SBIL,Simplify Government Money Market ETF,4833265848
+REET,iShares Global REIT ETF,4831479990
+SRLN,State Street Blackstone Senior Loan ETF,4826787820
+CGCB,Capital Group Core Bond ETF,4804387762
+CGDG,Capital Group Dividend Growers ETF,4767923343
+ISTB,iShares Core 1-5 Year USD Bond ETF,4751984160
+FESM,Fidelity Enhanced Small Cap ETF,4748613455
+LVHI,Franklin International Low Volatility High Dividend Index ETF,4731773888
+EAGG,iShares ESG Aware US Aggregate Bond ETF,4706490827
+CGMS,Capital Group U.S. Multi-Sector Income ETF,4685855317
+SJNK,State Street SPDR Bloomberg Short Term High Yield Bond ETF,4667648979
+DISV,Dimensional International Small Cap Value ETF,4646811917
+BSCR,Invesco BulletShares 2027 Corporate Bond ETF,4625368147
+FEZ,State Street SPDR EURO STOXX 50 ETF,4606586405
+TECL,Direxion Daily Technology Bull 3X ETF,4592387426
+MAGS,Roundhill Magnificent Seven ETF,4489312928
+RSPT,Invesco S&P 500 Equal Weight Technology ETF,4474716273
+OMFL,Invesco Russell 1000 Dynamic Multifactor ETF,4470724837
+FSEC,Fidelity Investment Grade Securitized ETF,4433564743
+SLYG,State Street SPDR S&P 600 Small Cap Growth ETF,4416728743
+SLYV,State Street SPDR S&P 600 Small Cap Value ETF,4364072539
+VTHR,Vanguard Russell 3000 ETF,4357077211
+GRNY,Fundstrat Granny Shots US Large Cap ETF,4339690413
+NEAR,iShares Short Duration Bond Active ETF,4293722997
+CMF,iShares California Muni Bond ETF,4235218237
+TOTL,State Street DoubleLine Total Return Tactical ETF,4210199719
+BTC,Grayscale Bitcoin Mini Trust ETF,4175603953
+EAGL,Eagle Capital Select Equity ETF,4105823026
+HYD,VanEck High Yield Muni ETF,4098217360
+QLTY,GMO US Quality ETF,4093385480
+IYR,iShares U.S. Real Estate ETF,4072238432
+IVLU,iShares MSCI Intl Value Factor ETF,4020290369
+EDV,Vanguard Extended Duration Treasury ETF,4019081000
+BILS,State Street SPDR Bloomberg 3-12 Month T-Bill ETF,4003443471
+QTUM,Defiance Quantum ETF,3998917589
+PZA,Invesco National AMT-Free Municipal Bond ETF,3989471289
+KRE,State Street SPDR S&P Regional Banking ETF,3975962778
+HELO,JPMorgan Hedged Equity Laddered Overlay ETF,3969509984
+TDIV,First Trust NASDAQ Technology Dividend Index Fund,3968419232
+BSCQ,Invesco BulletShares 2026 Corporate Bond ETF,3962485824
+EMLP,First Trust North American Energy Infrastructure Fund,3943064646
+PGX,Invesco Preferred ETF,3932940409
+IMTM,iShares MSCI Intl Momentum Factor ETF,3908058840
+DON,WisdomTree U.S. MidCap Dividend Fund,3891566600
+NVDL,GraniteShares 2x Long NVDA Daily ETF,3842635624
+GVI,iShares Intermediate Government/Credit Bond ETF,3826923692
+AIA,iShares Asia 50 ETF,3818068778
+IBDT,iShares iBonds Dec 2028 Term Corporate ETF,3806402957
+MSLC,Morgan Stanley Pathway Large Cap Equity ETF,3799560422
+XT,iShares Future Exponential Technologies ETF,3771981945
+USRT,iShares Core U.S. REIT ETF,3770052036
+JPLD,JPMorgan Limited Duration Bond ETF,3763166055
+IBDS,iShares iBonds Dec 2027 Term Corporate ETF,3757300413
+SUSA,iShares ESG Optimized MSCI USA ETF,3751168922
+IFRA,iShares U.S. Infrastructure ETF,3740991379
+EUFN,iShares MSCI Europe Financials ETF,3737076942
+IWX,iShares Russell Top 200 Value ETF,3734514608
+IBDU,iShares iBonds Dec 2029 Term Corporate ETF,3734410769
+VIOO,Vanguard S&P Small-Cap 600 ETF,3724815278
+DEM,WisdomTree Emerging Markets High Dividend Fund,3723381934
+IXJ,iShares Global Healthcare ETF,3708034590
+AAXJ,iShares MSCI All Country Asia ex Japan ETF,3666725253
+SCMB,Schwab Municipal Bond ETF,3639529774
+IBDR,iShares iBonds Dec 2026 Term Corporate ETF,3633062039
+VNQI,Vanguard Global ex-U.S. Real Estate ETF,3630382212
+SMLF,iShares U.S. SmallCap Equity Factor ETF,3623835892
+IDMO,Invesco S&P International Developed Momentum ETF,3613649552
+IDEF,iShares Defense Industrials Active ETF,3599763878
+GSY,Invesco Ultra Short Duration ETF,3594896984
+JTEK,JPMorgan U.S. Tech Leaders ETF,3586129478
+GPIQ,Goldman Sachs Nasdaq-100 Premium Income ETF,3579023606
+EWU,iShares MSCI United Kingdom ETF,3543360775
+GPIX,Goldman Sachs S&P 500 Premium Income ETF,3537210701
+CORO,iShares International Country Rotation Active ETF,3529489990
+NXUS,NuShares ETF Trust Nuveen International Aggregate Bond ETF,3522243557
+DBMF,iMGP DBi Managed Futures Strategy ETF,3492319850
+AOR,iShares Core 60/40 Balanced Allocation ETF,3482659224
+FLJP,Franklin FTSE Japan ETF,3474810915
+CALF,Pacer US Small Cap Cash Cows ETF,3473765226
+IMCG,iShares Morningstar Mid-Cap Growth ETF,3470292476
+DFGR,Dimensional Global Real Estate ETF,3465747759
+IVOO,Vanguard S&P Mid-Cap 400 ETF,3459524307
+IYF,iShares U.S. Financials ETF,3452256403
+EEMV,iShares MSCI Emerging Markets Min Vol Factor ETF,3452007462
+BSCS,Invesco BulletShares 2028 Corporate Bond ETF,3448181762
+FV,First Trust Dorsey Wright Focus 5 ETF,3445560088
+RING,iShares MSCI Global Gold Miners ETF,3442507151
+INTF,iShares International Equity Factor ETF,3439571998
+SHM,State Street SPDR Nuveen ICE Short Term Municipal Bond ETF,3428314371
+HYLB,Xtrackers USD High Yield Corporate Bond ETF,3426843155
+KNG,FT Vest S&P 500 Dividend Aristocrats Target Income ETF,3393373267
+FIXD,First Trust Smith Opportunistic Fixed Income ETF,3387023110
+BOTZ,Global X Robotics & Artificial Intelligence ETF,3357806525
+FNDC,Schwab Fundamental International Small Equity ETF,3345695582
+SPHD,Invesco S&P 500 High Dividend Low Volatility ETF,3323760478
+ACWV,iShares MSCI Global Min Vol Factor ETF,3310984672
+GCOW,Pacer Global Cash Cows Dividend ETF,3302733843
+IHI,iShares U.S. Medical Devices ETF,3274544249
+UCON,First Trust Smith Unconstrained Bond ETF,3238089217
+PTLC,Pacer Trendpilot US Large Cap ETF,3184638571
+VNLA,Janus Henderson Short Duration Income ETF,3167481275
+MLPX,Global X MLP & Energy Infrastructure ETF,3161245635
+LRGF,iShares U.S. Equity Factor ETF,3155901626
+VAW,Vanguard Materials ETF,3132422311
+GLTR,abrdn Physical Precious Metals Basket Shares ETF,3116041692
+USMC,Principal U.S. Mega-Cap ETF,3088081693
+RDVI,FT Vest Rising Dividend Achievers Target Income ETF,3074848248
+TFI,State Street SPDR Nuveen ICE Municipal Bond ETF,3073419222
+XYLD,Global X S&P 500 Covered Call ETF,3069390919
+XOP,State Street SPDR S&P Oil & Gas Exploration & Production ETF,3058294401
+ANGL,VanEck Fallen Angel High Yield Bond ETF,3055982687
+USCA,Xtrackers MSCI USA Climate Action Equity ETF,3043766703
+IBDV,iShares iBonds Dec 2030 Term Corporate ETF,3042254333
+NFRA,FlexShares STOXX Global Broad Infrastructure Index Fund,3034656788
+AOA,iShares Core 80/20 Aggressive Allocation ETF,3026646087
+GSUS,Goldman Sachs MarketBeta U.S. Equity ETF,2974033512
+REMX,VanEck Rare Earth and Strategic Metals ETF,2966780687
+FRDM,Freedom 100 Emerging Markets ETF,2963445451
+FLXR,TCW Flexible Income ETF,2949244871
+OUNZ,VanEck Merk Gold ETF,2949179651
+SQQQ,ProShares UltraPro Short QQQ,2948582598
+TBLL,Invesco Short Term Treasury ETF,2947534326
+IYH,iShares U.S. Healthcare ETF,2943813806
+BITB,Bitwise Bitcoin ETF Trust,2943430936
+FLCB,Franklin U.S Core Bond ETF,2932557437
+HGER,Harbor Commodity All-Weather Strategy ETF,2928484471
+SMMD,iShares Russell 2500 ETF,2925986033
+QTEC,First Trust NASDAQ-100 Technology Sector Index Fund,2922206345
+DCOR,Dimensional US Core Equity 1 ETF,2904132262
+AAAU,Goldman Sachs Physical Gold ETF,2901364992
+CGHM,Capital Group Municipal High-Income ETF,2877487336
+FHLC,Fidelity MSCI Health Care Index ETF,2877438226
+HYMB,State Street SPDR Nuveen ICE High Yield Municipal Bond ETF,2874217282
+ILCG,iShares Morningstar Growth ETF,2870687080
+PRFZ,Invesco RAFI US 1500 Small-Mid ETF,2870469728
+TMF,Direxion Daily 20+ Year Treasury Bull 3X ETF,2847698244
+NUGO,Nuveen Growth Opportunities ETF,2842665782
+FELV,Fidelity Enhanced Large Cap Value ETF,2842649689
+MUNI,PIMCO Intermediate Municipal Bond Active Exchange-Traded Fund,2831792551
+IYY,iShares Dow Jones U.S. ETF,2827811275
+ARKB,ARK 21Shares Bitcoin ETF,2806174938
+FLRN,State Street SPDR Bloomberg Investment Grade Floating Rate ETF,2805867713
+BSCT,Invesco BulletShares 2029 Corporate Bond ETF,2798483097
+PXF,Invesco RAFI Developed Markets ex-U.S. ETF,2782502774
+WTV,WisdomTree US Value Fund of Benef Interest,2729516965
+MDYG,State Street SPDR S&P 400 Mid Cap Growth ETF,2712145100
+PPLT,abrdn Physical Platinum Shares ETF,2710581563
+CQQQ,Invesco China Technology ETF,2698152789
+CWI,State Street SPDR MSCI ACWI ex-US ETF,2688571621
+IXC,iShares Global Energy ETF,2683208488
+BDYN,iShares Dynamic Equity Active ETF,2673962583
+FLTR,VanEck IG Floating Rate ETF,2671146860
+AVSC,Avantis U.S Small Cap Equity ETF,2658858900
+ARTY,iShares Future AI & Tech ETF,2657797010
+IGLB,iShares 10+ Year Investment Grade Corporate Bond ETF,2654335162
+KOMP,State Street SPDR S&P Kensho New Economies Composite ETF,2649130800
+JMEE,JPMorgan Small & Mid Cap Enhanced Equity ETF,2645067338
+BULZ,MicroSectors Solactive FANG & Innovation 3X Leveraged ETN,2642770750
+SMTH,ALPS/SMITH Core Plus Bond ETF,2629456177
+XSMO,Invesco S&P SmallCap Momentum ETF,2625055846
+UITB,VictoryShares Core Intermediate Bond ETF,2622750202
+ITB,iShares U.S. Home Construction ETF,2615219425
+FLIN,Franklin FTSE India ETF,2605224681
+SNPE,Xtrackers S&P 500 Scored & Screened ETF,2604718838
+NULG,Nuveen ESG Large-Cap Growth ETF,2587997067
+MDYV,State Street SPDR S&P 400 Mid Cap Value ETF,2577606354
+FTGC,First Trust Global Tactical Commodity Strategy Fund,2573515886
+SPYX,State Street SPDR S&P 500 Fossil Fuel Reserves Free ETF,2567896507
+TDTT,FlexShares iBoxx 3 Year Target Duration TIPS Index Fund,2565982962
+IPAC,iShares Core MSCI Pacific ETF,2524085580
+SECT,Main Sector Rotation ETF,2523358180
+URNM,Sprott Uranium Miners ETF,2515409416
+TSPA,T. Rowe Price U.S. Equity Research ETF,2501575719
+BSCU,Invesco BulletShares 2030 Corporate Bond ETF,2499944914
+CLIP,Global X 1-3 Month T-Bill ETF,2492289281
+EQWL,Invesco S&P 100 Equal Weight ETF,2462584451
+SKYY,First Trust Cloud Computing ETF,2460025478
+DIVI,Franklin International Core Dividend Tilt Index Fund,2459748195
+VRP,Invesco Variable Rate Preferred ETF,2455453436
+CGGE,Capital Group Global Equity ETF,2448532678
+USCL,iShares Climate Conscious & Transition MSCI USA ETF,2443346776
+DFGP,Dimensional Global Core Plus Fixed Income ETF,2423143561
+BALT,Innovator Defined Wealth Shield ETF,2410552994
+SCYB,Schwab High Yield Bond ETF,2407231807
+APUE,ActivePassive U.S. Equity ETF,2379113055
+FBT,First Trust NYSE Arca Biotechnology Index Fund,2373643077
+EBND,SPDR Bloomberg Emerging Markets Local Bond ETF,2366302407
+FUTY,Fidelity MSCI Utilities Index ETF,2366133687
+BCI,abrdn Bloomberg All Commodity Strategy K-1 Free ETF,2359608456
+CGMM,Capital Group U.S. Small and Mid Cap ETF,2354546883
+FSMD,Fidelity Small-Mid Multifactor ETF,2353241971
+IBDW,iShares iBonds Dec 2031 Term Corporate ETF,2347381832
+SPUS,SP Funds S&P 500 Sharia Industry Exclusions ETF,2344194222
+ICLN,iShares Global Clean Energy ETF,2343578548
+SLQD,iShares 0-5 Year Investment Grade Corporate Bond ETF,2334798530
+FWD,AB Disruptors ETF,2334184295
+PABU,iShares Paris-Aligned Climate Optimized MSCI USA ETF,2329163210
+HDEF,Xtrackers MSCI EAFE High Dividend Yield Equity ETF,2321222320
+FTCB,First Trust Core Investment Grade ETF,2320853397
+FNCL,Fidelity MSCI Financials Index ETF,2320210888
+ESML,iShares ESG Aware MSCI USA Small-Cap ETF,2318666674
+PFFA,Virtus InfraCap U.S. Preferred Stock ETF,2313748579
+IHDG,WisdomTree International Hedged Quality Dividend Growth Fund,2300218930
+IBTG,iShares iBonds Dec 2026 Term Treasury ETF,2298653165
+EWW,iShares MSCI Mexico ETF,2293706169
+FTSL,First Trust Senior Loan Fund,2271740302
+FAS,Direxion Daily Financial Bull 3X ETF,2266454390
+HTRB,Hartford Total Return Bond ETF,2263900800
+ACIO,Aptus Collared Investment Opportunity ETF,2254701778
+EPI,WisdomTree India Earnings Fund,2250907984
+FTLS,First Trust Long/Short Equity ETF,2240770434
+SPGP,Invesco S&P 500 GARP ETF,2237849437
+SCHY,Schwab International Dividend Equity ETF,2230284311
+JHCR,John Hancock Core Bond ETF,2226533072
+JIVE,JPMorgan International Value ETF,2221305217
+PFXF,VanEck Preferred Securities ex Financials ETF,2213653165
+BSVO,EA Bridgeway Omni Small-Cap Value ETF,2210675794
+GUSA,Goldman Sachs MarketBeta U.S. 1000 Equity ETF,2205552368
+QGRW,WisdomTree U.S. Quality Growth Fund,2196438586
+QGRO,American Century U.S. Quality Growth ETF,2195930245
+COWG,Pacer US Large Cap Cash Cows Growth Leaders ETF,2193819503
+EPP,iShares MSCI Pacific ex-Japan ETF,2183295924
+CGSD,Capital Group Short Duration Income ETF,2174734903
+ITM,VanEck Intermediate Muni ETF,2174640898
+GTO,Invesco Total Return Bond ETF,2169700805
+OIH,VanEck Oil Services ETF,2162985266
+USD,ProShares Ultra Semiconductors,2159551483
+FTHI,First Trust BuyWrite Income ETF,2154989475
+PFFD,Global X U.S. Preferred ETF,2138179703
+IBTH,iShares iBonds Dec 2027 Term Treasury ETF,2127230020
+GDXU,MicroSectors Gold Miners 3X Leveraged ETN,2127208971
+JMOM,JPMorgan U.S. Momentum Factor ETF,2123490742
+BGIG,Bahl & Gaynor Income Growth ETF,2121545735
+KLMN,Invesco MSCI North America Climate ETF,2116738309
+ARKQ,ARK Autonomous Technology & Robotics ETF,2115667717
+ICF,iShares Select U.S. REIT ETF,2115047817
+QDF,FlexShares Quality Dividend Index Fund,2113193578
+MLPA,Global X MLP ETF,2101016285
+IWL,iShares Russell Top 200 ETF,2095262771
+DFNM,Dimensional National Municipal Bond ETF,2094187243
+BKAG,BNY Mellon Core Bond ETF,2092777369
+ETH,Grayscale Ethereum Staking Mini ETF,2083027562
+DES,WisdomTree U.S. SmallCap Dividend Fund,2070182106
+AGQ,ProShares Ultra Silver,2067963191
+BBMC,JPMorgan BetaBuilders U.S. Mid Cap Equity ETF,2064300449
+BHYB,Xtrackers USD High Yield BB-B ex Financials ETF,2063063187
+XSD,State Street SPDR S&P Semiconductor ETF,2062080843
+TCHP,T. Rowe Price Blue Chip Growth ETF,2061842944
+PHO,Invesco Water Resources ETF,2059529918
+CGIE,Capital Group International Equity ETF,2054590190
+CLOA,iShares AAA CLO Active ETF,2049195446
+DFSU,Dimensional US Sustainability Core 1 ETF,2037867687
+FIDU,Fidelity MSCI Industrial Index ETF,2034435765
+CGNG,Capital Group New Geography Equity ETF,2026925935
+USTB,VictoryShares Short-Term Bond ETF,2022141147
+XSOE,WisdomTree Emerging Markets ex-State-Owned Enterprises Fund,2016826722
+TILT,FlexShares Morningstar US Market Factor Tilt Index Fund,2015752515
+NULV,Nuveen ESG Large-Cap Value ETF,2012600725
+FMB,First Trust Managed Municipal ETF,2008366916
+FLTW,Franklin FTSE Taiwan ETF,2006593859
+IYG,iShares US Financial Services ETF,2006188455
+IYJ,iShares U.S. Industrials ETF,1992858288
+FLMI,Franklin Dynamic Municipal Bond ETF,1976875088
+PSC,Principal U.S. Small-Cap ETF,1976596999
+PICK,iShares MSCI Global Metals & Mining Producers ETF,1967741580
+ETHE,Grayscale Ethereum Staking ETF,1962676847
+BITO,ProShares Bitcoin ETF,1960700437
+PXH,Invesco RAFI Emerging Markets ETF,1959162004
+TMFC,Motley Fool 100 Index ETF,1956826973
+FTXL,First Trust Nasdaq Semiconductor ETF,1952089421
+SPBO,State Street SPDR Portfolio Corporate Bond ETF,1950341895
+LIT,Global X Lithium & Battery Tech ETF,1935123708
+EWP,iShares MSCI Spain ETF,1930308247
+JPIB,JPMorgan International Bond Opportunities Fund,1925357523
+FPEI,First Trust Institutional Preferred Securities & Income ETF,1921175226
+FENY,Fidelity MSCI Energy Index ETF,1893934887
+TLTW,iShares 20+ Year Treasury Bond BuyWrite Strategy ETF,1892748227
+FLQL,Franklin U.S. Large Cap Multifactor Index ETF,1891139553
+TAGG,T. Rowe Price QM U.S. Bond ETF,1885271546
+DUSB,Dimensional Ultrashort Fixed Income ETF,1876268105
+DSTL,Distillate US Fundamental Stability & Value ETF,1874657669
+JPEF,JPMorgan Equity Focus ETF,1874005043
+TIPX,State Street SPDR Bloomberg 1-10 Year TIPS ETF,1869877512
+VTES,Vanguard Short-Term Tax Exempt Bond ETF,1867926500
+FALN,iShares Fallen Angels USD Bond ETF,1851959912
+XHLF,BondBloxx Bloomberg Six Month Target Duration US Treasury ETF,1851515613
+HEDJ,WisdomTree Europe Hedged Equity Fund,1844482829
+FIW,First Trust Water ETF,1843210366
+UBND,VictoryShares Core Plus Bond ETF,1837432482
+PWB,Invesco Large Cap Growth ETF,1831674175
+FDIS,Fidelity MSCI Consumer Discretionary Index ETF,1830970763
+RWR,State Street SPDR Dow Jones REIT ETF,1822748932
+IYT,iShares US Transportation ETF,1821445583
+TMSL,T. Rowe Price Small-Mid Cap ETF,1805862650
+BMOP,BNY Mellon Municipal Opportunities ETF,1800727855
+DGS,WisdomTree Emerging Markets SmallCap Dividend Fund,1798663381
+RWJ,Invesco S&P SmallCap 600 Revenue ETF,1792031327
+RPG,Invesco S&P 500 Pure Growth ETF,1791309988
+USPX,Franklin U.S. Equity Index ETF,1787534510
+RPV,Invesco S&P 500 Pure Value ETF,1784702291
+FCOM,Fidelity MSCI Communication Services Index ETF,1784197400
+BUFD,FT Vest Laddered Deep Buffer ETF,1783722854
+DFEV,Dimensional Emerging Markets Value ETF,1775369052
+AVIG,Avantis Core Fixed Income ETF,1770803422
+IEV,iShares Europe ETF,1757840578
+FEGE,First Eagle Global Equity ETF,1757759049
+ILOW,AB International Low Volatility Equity ETF,1753469432
+REGL,ProShares S&P MidCap 400 Dividend Aristocrats ETF,1746425367
+USO,United States Oil Fund LP,1744389775
+BKMI,BNY Mellon Municipal Intermediate ETF,1741613894
+ICOW,Pacer Developed Markets International Cash Cows 100 ETF,1736405769
+HACK,Amplify Cybersecurity ETF,1734462492
+ROBO,ROBO Global Robotics & Automation Index ETF,1729586138
+AOM,iShares Core 40/60 Moderate Allocation ETF,1728603915
+XNTK,State Street SPDR NYSE Technology ETF,1723407424
+PSI,Invesco Semiconductors ETF,1721034825
+GSEW,Goldman Sachs Equal Weight U.S. Large Cap Equity ETF,1717230464
+XCEM,Columbia EM Core ex-China ETF,1713859281
+FLQM,Franklin U.S. Mid Cap Multifactor Index ETF,1713573486
+IDU,iShares U.S. Utilities ETF,1701555423
+GARP,iShares MSCI USA Quality GARP ETF,1701047617
+ARKW,ARK Next Generation Internet ETF,1699985913
+EMGF,iShares Emerging Markets Equity Factor ETF,1699114945
+MTBA,Simplify MBS ETF,1695748203
+HYS,PIMCO 0-5 Year High Yield Corporate Bond Index Exchange-Traded Fund,1686231888
+DBC,Invesco DB Commodity Index Tracking Fund,1685193073
+QLTA,iShares Aaa-A Rated Corporate Bond ETF,1685141325
+VIOV,Vanguard S&P Small-Cap 600 Value ETF,1682932138
+IBTI,iShares iBonds Dec 2028 Term Treasury ETF,1671474446
+IYE,iShares U.S. Energy ETF,1667860155
+KORU,Direxion Daily MSCI South Korea Bull 3X ETF,1665619403
+VTC,Vanguard Total Corporate Bond ETF,1661209900
+BSCV,Invesco BulletShares 2031 Corporate Bond ETF,1657518831
+HYLS,First Trust Tactical High Yield ETF,1652841095
+BAR,GraniteShares Gold Shares,1651307877
+DFAR,Dimensional US Real Estate ETF,1650672545
+ASHR,Xtrackers Harvest CSI 300 China A-Shares ETF,1647937663
+QQEW,First Trust Nasdaq-100 Select Equal Weight ETF,1647033993
+CORP,PIMCO Investment Grade Corporate Bond Index ETF,1646032226
+CGIC,Capital Group International Core Equity ETF,1645281429
+IBDX,iShares iBonds Dec 2032 Term Corporate ETF,1642356545
+SOXS,Direxion Daily Semiconductor Bear 3X ETF,1630926782
+BDVL,iShares Disciplined Volatility Equity Active ETF Trust Unit,1627906198
+SFLR,Innovator Equity Managed Floor ETF,1621793767
+BNDW,Vanguard Total World Bond ETF,1621298700
+TNA,Direxion Daily Small Cap Bull 3X ETF,1618633194
+BAFE,Brown Advisory Flexible Equity ETF,1609473472
+PKW,Invesco Buyback Achievers ETF,1606168834
+EWL,iShares MSCI Switzerland ETF,1601841172
+BIZD,VanEck BDC Income ETF,1588073871
+EUSA,iShares MSCI USA Equal Weighted ETF,1585205288
+JEMA,JPMorgan ActiveBuilders Emerging Markets Equity ETF,1581107605
+CGCV,Capital Group Conservative Equity ETF,1580870939
+PJAN,Innovator U.S. Equity Power Buffer ETF - January,1579373062
+CTA,Simplify Managed Futures Strategy ETF,1577211286
+MMIT,NYLI MacKay Muni Intermediate ETF,1571435029
+IYM,iShares U.S. Basic Materials ETF,1569239155
+NHYB,Nuveen High Yield Corporate Bond ETF,1568412765
+IVOG,Vanguard S&P Mid-Cap 400 Growth ETF,1566560800
+IAI,iShares U.S. Broker-Dealers & Securities Exchanges ETF,1566321129
+DTD,WisdomTree U.S. Total Dividend Fund,1563288001
+SPGM,State Street SPDR Portfolio MSCI Global Stock Market ETF,1554200354
+IMCB,iShares Morningstar Mid-Cap ETF,1548291387
+USVM,VictoryShares US Small Mid Cap Value Momentum ETF,1547423274
+QDPL,Pacer Metaurus US Large Cap Dividend Multiplier 400 ETF,1544291610
+BWX,SPDR Bloomberg International Treasury Bond ETF,1544085465
+HFXI,NYLI FTSE International Equity Currency Neutral ETF,1540712566
+VFMO,Vanguard U.S. Momentum Factor ETF,1537250100
+HYDB,iShares High Yield Systematic Bond ETF,1535567207
+QVML,Invesco S&P 500 QVM Multi-factor ETF,1535560700
+MISL,First Trust Indxx Aerospace & Defense ETF,1534762886
+XHB,State Street SPDR S&P Homebuilders ETF,1533887007
+PIEQ,Principal International Equity ETF,1531234922
+DTCR,Global X Data Center And Digital Infrastructure ETF,1531106733
+INFL,Horizon Kinetics Inflation Beneficiaries ETF,1527156667
+DFGX,Dimensional International Core Fixed Income ETF,1518622481
+JSI,Janus Henderson Securitized Income ETF,1515685792
+FSIG,First Trust Limited Duration Investment Grade Corporate ETF,1502046224
+UTES,Virtus Reaves Utilities ETF,1497540755
+VRIG,Invesco Variable Rate Investment Grade ETF,1495230358
+RODM,Hartford Multifactor Developed Markets (ex-US) ETF,1490361271
+LMUB,iShares Long-Term National Muni Bond ETF,1488269295
+KLMT,Invesco MSCI Global Climate 500 ETF,1487887437
+FEX,First Trust Large Cap Core AlphaDEX Fund,1487086825
+TAN,Invesco Solar ETF,1484070430
+KBE,State Street SPDR S&P Bank ETF,1477896285
+DRSK,Aptus Defined Risk ETF,1477425684
+GSST,Goldman Sachs Ultra Short Bond ETF,1474352463
+QUS,State Street SPDR MSCI USA StrategicFactors ETF,1470718912
+PREF,Principal Spectrum Preferred Secs Active ETF,1466863365
+EPS,WisdomTree U.S. LargeCap Fund,1461142358
+YEAR,AB Ultra Short Income ETF,1459652583
+FXL,First Trust Technology AlphaDEX Fund,1458893427
+FREL,Fidelity MSCI Real Estate Index ETF,1457277170
+UYLD,Angel Oak UltraShort Income ETF,1456647817
+DHS,WisdomTree U.S. High Dividend Fund,1455923411
+SOXQ,Invesco PHLX Semiconductor ETF,1451661913
+EWG,iShares MSCI Germany ETF,1447468688
+INCM,Franklin Income Focus ETF Income Focus ETF,1439209296
+FSTA,Fidelity MSCI Consumer Staples Index ETF,1435069505
+LCTU,iShares U.S. Carbon Transition Readiness Aware Active ETF,1431039898
+PWV,Invesco Large Cap Value ETF,1430423224
+PDP,Invesco Dorsey Wright Momentum ETF,1430017040
+GEM,Goldman Sachs ActiveBeta Emerging Markets Equity ETF,1425853782
+JSCP,JPMorgan Short Duration Core Plus ETF,1424951829
+EWA,iShares MSCI Australia ETF,1422162651
+FDLO,Fidelity Low Volatility Factor ETF,1417240185
+VPLS,Vanguard Core Plus Bond ETF,1414892700
+NVDY,YieldMax NVDA Option Income Strategy ETF,1414873727
+RSSL,Global X Russell 2000 ETF,1413556152
+TOUS,T. Rowe Price International Equity ETF,1413119553
+PWRD,TCW Transform Systems ETF,1409244115
+BSCW,Invesco BulletShares 2032 Corporate Bond ETF,1408021308
+RAVI,FlexShares Ultra-Short Income Fund,1407480605
+AVES,Avantis Emerging Markets Value ETF,1404467992
+FLDR,Fidelity Low Duration Bond Factor ETF,1400828850
+SUSC,iShares ESG Aware USD Corporate Bond ETF,1394636028
+ZROZ,PIMCO 25+ Year Zero Coupon US Treasury Index Exchange-Traded Fund,1392630825
+EUAD,Select STOXX Europe Aerospace & Defense ETF,1379479590
+FETH,Fidelity Ethereum Fund ETF,1379050288
+LDUR,PIMCO Enhanced Low Duration Active ETF,1369401396
+PCY,Invesco Emerging Markets Sovereign Debt ETF,1369292680
+IWC,iShares Micro-Cap ETF,1365628572
+DDWM,WisdomTree Dynamic International Equity Fund,1363215628
+VTWG,Vanguard Russell 2000 Growth ETF,1362406400
+IYK,iShares U.S. Consumer Staples ETF,1362367961
+BUFQ,FT Vest Laddered Nasdaq Buffer ETF,1357139934
+SDOG,ALPS Sector Dividend Dogs ETF,1355963524
+FQAL,Fidelity Quality Factor ETF,1355329394
+FGD,First Trust Dow Jones Global Select Dividend Index Fund,1351701616
+MEAR,iShares Short Maturity Municipal Bond Active ETF,1351487899
+IGEB,iShares Investment Grade Systematic Bond ETF,1348042663
+VTEI,Vanguard Intermediate-Term Tax-Exempt Bond ETF,1344492500
+DVYE,iShares Emerging Markets Dividend ETF,1334239145
+FJAN,FT Vest US Equity Buffer ETF - January,1327716410
+EQTY,Kovitz Core Equity ETF,1324757163
+CHAT,Roundhill Generative AI & Technology ETF,1324716143
+CLOI,VanEck CLO ETF,1317955723
+FDEC,FT Vest US Equity Buffer ETF - December,1316439733
+FNX,First Trust Mid Cap Core AlphaDEX Fund,1315825802
+SEIM,SEI Enhanced U.S. Large Cap Momentum Factor ETF,1313348812
+NTSX,WisdomTree U.S. Efficient Core Fund,1311534007
+DIVB,iShares Core Dividend ETF,1308035745
+FPX,First Trust US Equity Opportunities ETF,1308020453
+EVLN,Eaton Vance Floating-Rate ETF,1304970538
+JFLX,JPMorgan Flexible Debt ETF,1304164273
+FTA,First Trust Large Cap Value AlphaDEX Fund,1303726425
+SPLB,State Street SPDR Portfolio Long Term Corporate Bond ETF,1302599281
+SMIG,Bahl & Gaynor Small/Mid Cap Income Growth ETF,1302421117
+USXF,iShares ESG Advanced MSCI USA ETF,1301348115
+RYLD,Global X Russell 2000 Covered Call ETF,1300422870
+MSTY,YieldMax MSTR Option Income Strategy ETF,1297722413
+TDVG,T. Rowe Price Dividend Growth ETF,1295603659
+EXI,iShares Global Industrials ETF,1294411110
+HODL,VanEck Bitcoin ETF,1294011522
+NYM,AB New York Intermediate Municipal ETF,1289332130
+NUSC,Nuveen ESG Small-Cap ETF,1287647736
+MUU,Direxion Daily MU Bull 2X ETF,1283777606
+SDIV,Global X Superdividend ETF,1279217767
+FFEB,FT Vest U.S. Equity Buffer Fund - February,1276674692
+BKDV,BNY Mellon Dynamic Value ETF,1275128467
+DFAW,Dimensional World Equity ETF,1274487968
+EEMA,iShares MSCI Emerging Markets Asia ETF,1272594307
+JHMD,John Hancock Multifactor Developed International ETF,1270694409
+IVOV,Vanguard S&P Mid-Cap 400 Value ETF,1268256950
+FTC,First Trust Large Cap Growth AlphaDEX Fund,1263513167
+VCRM,Vanguard Core Tax-Exempt Bond ETF,1263120000
+SEIV,SEI Enhanced U.S. Large Cap Value Factor ETF,1262062086
+PHYL,PGIM Active High Yield Bond ETF,1260915855
+ALLW,State Street Bridgewater All Weather ETF,1260667067
+PMBS,PIMCO Mortgage-Backed Securities Active Exchange-Traded Fund,1259299690
+NUGT,Direxion Daily Gold Miners Index Bull 2X ETF,1249682865
+IBTJ,iShares iBonds Dec 2029 Term Treasury ETF,1247260937
+ISPY,ProShares S&P 500 High Income ETF,1245249870
+AVIV,Avantis International Large Cap Value ETF,1245202227
+FTGS,First Trust Growth Strength ETF,1244800488
+FSEP,FT Vest U.S. Equity Buffer ETF - September,1243796030
+BITX,2x Bitcoin Strategy ETF,1240870058
+NYF,iShares New York Muni Bond ETF,1240791489
+RWO,State Street SPDR Dow Jones Global Real Estate ETF,1238694280
+FFSM,Fidelity Fundamental Small-Mid Cap ETF,1238140447
+UNIY,WisdomTree Voya Yield Enhanced USD Universal Bond Fund ETF,1238028177
+MOO,VanEck Agribusiness ETF,1237290950
+IYC,iShares U.S. Consumer Discretionary ETF,1227551922
+EDIV,State Street SPDR S&P Emerging Markets Dividend ETF,1224549111
+PTNQ,Pacer Trendpilot 100 ETF,1224513167
+ILCV,iShares Morningstar Value ETF,1223596942
+IGRO,iShares International Dividend Growth ETF,1223367558
+BKIE,BNY Mellon International Equity ETF,1221964565
+RWK,Invesco S&P MidCap 400 Revenue ETF,1218307475
+FNDB,Schwab Fundamental U.S. Broad Market ETF,1217408838
+VCEB,Vanguard ESG U.S. Corporate Bond ETF,1214784000
+ILCB,iShares Morningstar U.S. Equity ETF,1206436853
+QQQE,Direxion NASDAQ-100 Equal Weighted Index ETF,1205617429
+CATH,Global X S&P 500 Catholic Values Custom ETF,1200674804
+TAFI,AB Tax-Aware Short Duration Municipal ETF,1200301875
+FNOV,FT Vest U.S. Equity Buffer ETF - November,1199180527
+ARKG,ARK Genomic Revolution ETF,1187096534
+FVAL,Fidelity Value Factor ETF,1186199708
+FYX,First Trust Small Cap Core Alphadex Fund,1184968594
+SCO,ProShares UltraShort Bloomberg Crude Oil,1184796595
+EVSD,Eaton Vance Short Duration Income ETF,1184333780
+IGOV,iShares International Treasury Bond ETF,1176200575
+BLOK,Amplify Blockchain Technology ETF,1163163683
+LGLV,State Street SPDR US Large Cap Low Volatility Index ETF,1161404676
+FDT,First Trust Developed Markets ex-US AlphaDEX Fund,1160768544
+BBAG,JPMorgan BetaBuilders U.S. Aggregate Bond ETF,1158855826
+GOVI,Invesco Equal Weight 0-30 Year Treasury ETF,1155163858
+FMAR,FT Vest US Equity Buffer ETF - March,1154892549
+VTWV,Vanguard Russell 2000 Value ETF,1154726550
+FOCT,FT Vest U.S. Equity Buffer ETF - October,1152659393
+DBA,Invesco DB Agriculture Fund,1151457027
+TGRT,T. Rowe Price Growth ETF,1149156822
+SH,ProShares Short S&P500,1147966712
+FJUL,FT Vest U.S. Equity Buffer ETF - July,1144529007
+FJUN,FT Vest U.S. Equity Buffer ETF - June,1143291328
+FAUG,FT Vest U.S. Equity Buffer ETF - August,1142775855
+BUYW,Main BuyWrite ETF,1137468573
+AVLC,Avantis U.S. Large Cap Equity ETF,1132011522
+JBBB,Janus Henderson B-BBB CLO ETF,1131115363
+CGSM,Capital Group Short Duration Municipal Income ETF,1130501170
+ECH,iShares MSCI Chile ETF,1125772155
+IDVO,Amplify CWP International Enhanced Dividend Income ETF,1125392283
+CAM,AB California Intermediate Municipal ETF,1123812167
+HYGV,FlexShares High Yield Value-Scored Bond Index Fund,1123718642
+BTCI,NEOS Bitcoin High Income ETF,1121113502
+SFGV,Sequoia Global Value ETF,1118364282
+RLY,State Street Multi-Asset Real Return ETF,1114551858
+DUSA,Davis Select U.S. Equity ETF,1114053971
+IQDF,FlexShares International Quality Dividend Index Fund,1113290431
+FMAY,FT Vest U.S. Equity Buffer Fund - May,1110318284
+BBRE,JPMorgan BetaBuilders MSCI US REIT ETF,1108959885
+OAKM,Oakmark U.S. Large Cap ETF,1103617701
+IDEQ,Lazard International Dynamic Equity ETF,1102826468
+JHML,John Hancock Multifactor Large Cap ETF,1101755424
+TBUX,T. Rowe Price Ultra Short-Term Bond ETF,1100086678
+FXO,First Trust Financials AlphaDEX Fund,1098464662
+FXN,First Trust Energy AlphaDEX Fund,1097008315
+QEFA,State Street SPDR MSCI EAFE StrategicFactors ETF,1095423123
+LRGC,AB US Large Cap Strategic Equities ETF,1095342298
+WINN,Harbor Long-Term Growers ETF,1092227391
+FFLC,Fidelity Fundamental Large Cap Core ETF,1091623670
+DFIP,Dimensional Inflation-Protected Securities ETF,1088034888
+BSJQ,Invesco BulletShares 2026 High Yield Corp Bond ETF,1085886584
+PWZ,Invesco California AMT-Free Municipal Bond ETF,1085523104
+DLS,WisdomTree International SmallCap Dividend Fund,1080311533
+SUSB,iShares ESG Aware 1-5 Year USD Corporate Bond ETF,1079819931
+SLVP,iShares MSCI Global Silver Miners ETF,1075241528
+CSHI,NEOS Enhanced Income 1-3 Month T-Bill ETF,1074173005
+GSID,Marketbeta INTL Equity ETF,1072729028
+CRBN,iShares Low Carbon Optimized MSCI ACWI ETF,1072353108
+CGW,Invesco S&P Global Water Index ETF,1071836087
+HAUZ,DBX ETF Trust - Xtrackers International Real Estate ETF,1069399626
+FEOE,First Eagle Overseas Equity ETF,1068879311
+ETHU,2x Ether ETF,1065170601
+UGL,ProShares Ultra Gold,1059052167
+SMMU,PIMCO Short Term Municipal Bond Active ETF,1058969630
+SUSL,iShares ESG MSCI USA Leaders ETF,1056475262
+IBDY,iShares iBonds Dec 2033 Term Corporate ETF,1055436163
+EIPI,FT Energy Income Partners Enhanced Income ETF,1052540692
+CARY,Angel Oak Income ETF,1045522956
+BAB,Invesco Taxable Municipal Bond ETF,1045516807
+POCT,Innovator U.S. Equity Power Buffer ETF - October,1045153468
+PEY,Invesco High Yield Equity Dividend Achievers ETF,1043817541
+DFSI,Dimensional International Sustainability Core 1 ETF,1043694596
+STRV,Strive 500 ETF,1032497232
+QQQJ,Invesco NASDAQ Next Gen 100 ETF,1031528531
+FLHY,Franklin High Yield Corporate ETF,1031436013
+BUFC,AB Conservative Buffer ETF,1030581961
+XTEN,BondBloxx Bloomberg Ten Year Target Duration US Treasury ETF,1030458354
+FYC,First Trust Small Cap Growth AlphaDEX Fund,1029311682
+PPH,VanEck Pharmaceutical ETF,1028598089
+IVES,Dan IVES Wedbush AI Revolution ETF,1026762762
+IMCV,iShares Morningstar Mid-Cap Value ETF,1025283343
+VOTE,TCW Transform 500 ETF,1024411112
+APIE,ActivePassive International Equity ETF,1023456763
+PDEC,Innovator U.S. Equity Power Buffer ETF - December,1018329952
+TDTF,FlexShares iBoxx 5 Year Target Duration TIPS Index Fund,1015411705
+FAPR,FT Vest U.S. Equity Buffer ETF - April,1012416859
+SEIE,SEI Select International Equity ETF,1008029513
+FLGV,Franklin U.S. Treasury Bond ETF,1004358321
+IBHF,iShares iBonds 2026 Term High Yield and Income ETF,1001973142
+CERY,State Street SPDR Bloomberg Enhanced Roll Yield Commodity Strategy No K-1 ETF,999737026
+NBSD,Neuberger Short Duration Income ETF,999699861
+SPIP,State Street SPDR Portfolio TIPS ETF,998912400
+KXI,iShares Global Consumer Staples ETF,998897466
+PJUL,Innovator U.S. Equity Power Buffer ETF - July,998089374
+MFSI,MFS Active International ETF,996525880
+EFIV,State Street SPDR S&P 500 ESG ETF,995066450
+IMFL,Invesco International Developed Dynamic Multifactor ETF,984885087
+COMT,iShares U.S. ETF Trust iShares GSCI Commodity Dynamic Roll Strategy ETF,983709257
+EIS,iShares MSCI Israel ETF,973206306
+IHE,iShares U.S. Pharmaceuticals ETF,972028390
+TGRW,T. Rowe Price Growth Stock ETF,968951888
+IYZ,iShares U.S. Telecommunications ETF,961509143
+TSME,Thrivent Small-Mid Cap Equity ETF,960811759
+RDIV,Invesco S&P Ultra Dividend Revenue ETF,957030908
+BSCX,Invesco BulletShares 2033 Corporate Bond ETF,956470042
+JHEM,John Hancock Multifactor Emerging Markets ETF,954242024
+DGCB,Dimensional Global Credit ETF,953097328
+DJP,iPath Bloomberg Commodity Index Total Return ETN,951946502
+FMHI,First Trust Municipal High Income ETF,951756216
+PNOV,Innovator U.S. Equity Power Buffer ETF - November,946635302
+ISCG,iShares Morningstar Small-Cap Growth ETF,946579976
+XAGG,Eaton Vance Income Opportunities ETF,939870195
+GSSC,TR Activebeta US Small Cap Equity ETF,939818118
+SYLD,Cambria Shareholder Yield ETF,939356202
+DMXF,iShares ESG Advanced MSCI EAFE ETF,939063548
+JSMD,Janus Henderson Small/Mid Cap Growth Alpha ETF,936827937
+BALI,iShares U.S. Large Cap Premium Income Active ETF,935619360
+FTXR,First Trust Nasdaq Transportation ETF,934149824
+VIOG,Vanguard S&P Small-Cap 600 Growth ETF,933844000
+APCB,ActivePassive Core Bond ETF,925069013
+PAPR,Innovator U.S. Equity Power Buffer ETF - April,923562964

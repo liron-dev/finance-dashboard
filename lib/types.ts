@@ -14,6 +14,24 @@ export type Stock = {
   int_coverage: number;
   pe_ratio: number;
   updated_at: string;
+  market_cap: number | null;
+  returns_1y: number[] | null;
+};
+
+export type Etf = {
+  ticker: string;
+  name: string;
+  expense_ratio: number | null;
+  aum_usd: number | null;
+  current_price: number;
+  yoy_pct: number;
+  returns_1y: number[];
+  last_close_date: string;
+};
+
+export type EtfMatch = {
+  etf: Etf;
+  fitPct: number;       // 0..100, R² × 100, clipped to 0 for inverse correlations
 };
 
 export type MacroRow = {

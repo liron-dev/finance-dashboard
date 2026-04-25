@@ -5,6 +5,7 @@ import type {
   CotPerfRow,
   CotRow,
   CreditManager,
+  Etf,
   MacroRow,
   ManagerHistRow,
   Stock,
@@ -102,10 +103,22 @@ export async function fetchMetals(): Promise<MetalsData> {
 export async function fetchStocks(): Promise<Stock[]> {
   const { data } = await supabase
     .from('stocks')
-    .select('ticker, name, sector, price, gross_margin, roic, fcf_margin, int_coverage, pe_ratio, updated_at')
+    .select('ticker, name, sector, price, gross_margin, roic, fcf_margin, int_coverage, pe_ratio, updated_at, market_cap, returns_1y')
     .gt('price', 0)
     .order('ticker', { ascending: true });
   return (data as Stock[]) ?? [];
+}
+
+export async function fetchAllEtfs(): Promise<Etf[]> {
+  // Pull all ETFs at once for client-side matching. Supabase's default cap is
+  // 1000 rows; our universe is ≤1000 so a single page suffices.
+  const { data, error } = await supabase
+    .from('etfs')
+    .select('ticker, name, expense_ratio, aum_usd, current_price, yoy_pct, returns_1y, last_close_date')
+    .order('aum_usd', { ascending: false, nullsFirst: false })
+    .limit(1000);
+  if (error) throw new Error(error.message);
+  return (data as Etf[]) ?? [];
 }
 
 export type CreditData = {

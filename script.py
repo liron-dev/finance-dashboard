@@ -11,6 +11,8 @@ from io import StringIO
 
 import pandas as pd, requests, yfinance as yf
 
+from yf_batch import batched_download, compute_simple_returns
+
 # ── Config ────────────────────────────────────────────────────────────────────
 WORKERS, MAX_RETRIES, RETRY_DELAY = 4, 2, 3
 BATCH_SIZE, BATCH_PAUSE = 50, 3  # pause 3s every 50 tickers to avoid rate limits
@@ -18,6 +20,7 @@ METRIC_COLS = ["price", "gross_margin", "roic", "fcf_margin", "int_coverage", "p
 MIN_SUCCESS_RATE = 0.90  # only replace DB data if ≥90% of tickers succeeded
 EST_INTEREST_RATE = 0.05   # fallback rate when interest data missing but debt exists
 INT_COV_CAP = 999.99       # cap for debt-free companies
+RETURNS_LEN = 252          # window for ETF-matching feature
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def _first(stmt: pd.DataFrame | None, *keys: str) -> float | None:
@@ -69,12 +72,18 @@ def _resolve_ebit(inc, int_exp):
 # ── 3. Per-ticker fetch ──────────────────────────────────────────────────────
 def fetch_metrics(symbol: str, sector: str) -> dict:
     row = {"ticker": symbol, "name": symbol, "sector": sector,
+           "market_cap": None,
            **{k: None for k in METRIC_COLS}}
     for attempt in range(MAX_RETRIES + 1):
         try:
             t    = yf.Ticker(symbol)
             info = t.info or {}
             row["name"] = info.get("shortName") or info.get("longName") or symbol
+
+            # Market cap (used by ETF-matching feature; nullable on failure)
+            mc = info.get("marketCap")
+            if isinstance(mc, (int, float)) and mc and mc > 0:
+                row["market_cap"] = int(mc)
 
             # Price
             price = info.get("currentPrice")
@@ -188,7 +197,24 @@ def _sb():
     if not url or not key: sys.exit("[error] Set SUPABASE_URL and SUPABASE_KEY env vars.")
     return create_client(url, key)
 
-def push_metrics(df: pd.DataFrame) -> None:
+def fetch_returns_1y(tickers: list[str]) -> dict[str, list[float]]:
+    """Batched 2y close download → 252-day simple returns per ticker.
+    Failures are silent; missing tickers are simply absent from the result.
+    Adds ~30-60s to script.py runtime; one batched HTTP call per chunk."""
+    print(f"\nFetching returns for {len(tickers)} tickers (batched) …", flush=True)
+    t0 = time.monotonic()
+    raw = batched_download(tickers, period="2y", chunk_size=100, sleep_between=2.0)
+    out: dict[str, list[float]] = {}
+    for t, dated in raw.items():
+        closes = [c for _, c in dated]
+        rets = compute_simple_returns(closes)[-RETURNS_LEN:]
+        if len(rets) >= 60:
+            out[t] = rets
+    print(f"  → returns ready for {len(out)}/{len(tickers)} tickers "
+          f"in {time.monotonic()-t0:.0f}s", flush=True)
+    return out
+
+def push_metrics(df: pd.DataFrame, returns_map: dict[str, list[float]]) -> None:
     sb = _sb()
     valid = df.dropna(subset=METRIC_COLS, how="all")
     total, success = len(df), len(valid)
@@ -212,12 +238,20 @@ def push_metrics(df: pd.DataFrame) -> None:
         for col in METRIC_COLS:
             v = r[col]
             rec[col] = float(v) if pd.notna(v) else None
+        mc = r.get("market_cap")
+        rec["market_cap"] = int(mc) if pd.notna(mc) and mc else None
+        rec["returns_1y"] = returns_map.get(r["ticker"])  # list[float] or None
         records.append(rec)
 
     # Replace: delete old data, then insert new
     sb.table("stocks").delete().neq("ticker", "").execute()
-    sb.table("stocks").insert(records).execute()
-    print(f"[Supabase] Replaced table with {len(records)} rows ({today}).")
+    # Insert in chunks (returns_1y arrays inflate row size; 100/chunk is safe)
+    for i in range(0, len(records), 100):
+        sb.table("stocks").insert(records[i:i+100]).execute()
+    n_with_ret = sum(1 for r in records if r.get("returns_1y"))
+    n_with_mc  = sum(1 for r in records if r.get("market_cap"))
+    print(f"[Supabase] Replaced table with {len(records)} rows ({today}). "
+          f"market_cap={n_with_mc}, returns_1y={n_with_ret}.")
 
 # ── 7. Entry point ───────────────────────────────────────────────────────────
 def main() -> None:
@@ -236,8 +270,15 @@ def main() -> None:
     df = build_df(tickers, sectors)
     print_table(df)
 
+    # Returns for ETF-matching feature (graceful: failures don't block fundamentals push)
+    returns_map: dict[str, list[float]] = {}
+    try:
+        returns_map = fetch_returns_1y(tickers)
+    except Exception as e:
+        print(f"[warn] returns batch failed: {e}", file=sys.stderr)
+
     if args.push:
-        push_metrics(df)
+        push_metrics(df, returns_map)
     if int(df[METRIC_COLS].notna().any(axis=1).sum()) == 0:
         print("\n[FATAL] All tickers failed.", file=sys.stderr); sys.exit(1)
 
