@@ -187,9 +187,9 @@ function HeaderRow({
   sortDir: SortDir;
   onSort: (k: SortKey) => void;
 }) {
-  const hcell = (k: SortKey, label: string, colStyle: any) => (
+  const hcell = (k: SortKey, label: string, colStyle: any, align: 'left' | 'right' = 'left') => (
     <Pressable onPress={() => onSort(k)} style={colStyle}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 } as any}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, justifyContent: align === 'right' ? 'flex-end' : 'flex-start' } as any}>
         <Text style={styles.th}>{label}</Text>
         {sortKey === k ? (
           <Feather name={sortDir === 'asc' ? 'chevron-up' : 'chevron-down'} size={12} color={theme.yellow} />
@@ -202,12 +202,12 @@ function HeaderRow({
       {hcell('ticker', 'Ticker', styles.colTicker)}
       {!isMobile && <Text style={[styles.th, styles.colName]}>Name</Text>}
       {!isMobile && <Text style={[styles.th, styles.colSector]}>Sector</Text>}
-      {hcell('price', 'Price', styles.colNum)}
-      {hcell('gross_margin', 'GM%', styles.colNum)}
-      {hcell('roic', 'ROIC%', styles.colNum)}
-      {hcell('fcf_margin', 'FCF%', styles.colNum)}
-      {hcell('int_coverage', 'IC×', styles.colNum)}
-      {hcell('pe_ratio', 'P/E', styles.colNum)}
+      {hcell('price', 'Price', styles.colNum, 'right')}
+      {hcell('gross_margin', 'GM%', styles.colNum, 'right')}
+      {hcell('roic', 'ROIC%', styles.colNum, 'right')}
+      {hcell('fcf_margin', 'FCF%', styles.colNum, 'right')}
+      {hcell('int_coverage', 'IC×', styles.colNum, 'right')}
+      {hcell('pe_ratio', 'P/E', styles.colNum, 'right')}
     </View>
   );
 }

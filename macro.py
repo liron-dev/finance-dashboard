@@ -27,7 +27,7 @@ COT_URL_COMBINED = "https://publicreporting.cftc.gov/resource/kh3c-gbw2.json"  #
 COT_URL_FUTURES_ONLY = "https://publicreporting.cftc.gov/resource/72hh-3qpy.json"  # Disaggregated Futures-Only
 COT_METALS = {"gold": ("GOLD", "088691"), "silver": ("SILVER", "084691")}
 COT_HISTORY_YEARS = 5
-COT_INDEX_WINDOW_WEEKS = 26  # ~6mo rolling min/max on prod_merc long share of OI
+COT_INDEX_LOOKBACK_YEARS = 3
 COT_PERF_YEARS = 3  # "What happened next?" table window (Felix/Goat Academy uses 3 years)
 OZ_PER_CONTRACT = {"gold": 100, "silver": 5000}
 
@@ -118,16 +118,14 @@ def _cot_fetch(url: str, contract_code: str, cutoff: str, select: str) -> list[d
     return resp.json()
 
 def fetch_cot() -> list[dict]:
-    """Williams COT Index on Producer/Merchant long share of OI, 26-week rolling.
+    """Williams COT Index on Commercial Long Ratio, 3yr rolling min-max.
 
-    Score = 100 × (prod_long_oi − min26) / (max26 − min26), where
-    prod_long_oi = prod_merc_positions_long / open_interest_all.
-    Producer/Merchant positions come from the Disaggregated Futures+Options
-    Combined report — this is what matches Felix Prehn's "Smart Money Meter"
-    gauge values across both metals (verified err ≤ 3 pts on four anchors).
+    Commercial Long Ratio and managed-money positions come from the
+    Disaggregated Futures+Options Combined report — this is what matches Felix
+    Prehn's "Smart Money Meter" latest values exactly.
 
-    Open interest stored on the row comes from the Disaggregated Futures-ONLY
-    report because the Paper/Physical ratio in Felix's dashboard divides that
+    Open interest stored here comes from the Disaggregated Futures-ONLY report
+    because that's what the Paper/Physical ratio in Felix's dashboard divides
     by registered COMEX ounces (gold ≈ 2.2×, silver ≈ 7.5×).
     """
     rows = []
@@ -137,7 +135,8 @@ def fetch_cot() -> list[dict]:
             combined = _cot_fetch(
                 COT_URL_COMBINED, contract_code, cutoff,
                 "report_date_as_yyyy_mm_dd,"
-                "prod_merc_positions_long,"
+                "prod_merc_positions_long,prod_merc_positions_short,"
+                "swap_positions_long_all,swap__positions_short_all,"
                 "m_money_positions_long_all,m_money_positions_short_all,"
                 "open_interest_all"
             )
@@ -154,10 +153,14 @@ def fetch_cot() -> list[dict]:
             for r in combined:
                 rd = r["report_date_as_yyyy_mm_dd"][:10]
                 pm_long = int(r["prod_merc_positions_long"])
+                pm_short = int(r["prod_merc_positions_short"])
+                sw_long = int(r["swap_positions_long_all"])
+                sw_short = int(r["swap__positions_short_all"])
                 mm_long = int(r["m_money_positions_long_all"])
                 mm_short = int(r["m_money_positions_short_all"])
-                oi_combined = int(r["open_interest_all"])
-                prod_long_oi = pm_long / oi_combined if oi_combined else 0.0
+                comm_long = pm_long + sw_long
+                comm_short = pm_short + sw_short
+                comm_lr = comm_long / (comm_long + comm_short) if (comm_long + comm_short) else 0.0
                 parsed.append({
                     "metal": metal_key,
                     "report_date": rd,
@@ -166,26 +169,26 @@ def fetch_cot() -> list[dict]:
                     # Futures-only OI powers Paper/Physical on the frontend.
                     # Fall back to combined OI only if the Futures-Only report
                     # is missing that specific date (very rare).
-                    "open_interest": fo_by_date.get(rd, oi_combined),
-                    "_prod_long_oi": prod_long_oi,
+                    "open_interest": fo_by_date.get(rd, int(r["open_interest_all"])),
+                    "_comm_lr": comm_lr,
                     "cot_index": None,
                 })
 
-            # Rolling Williams COT on Producer/Merchant long share of OI: for
-            # each row, find min/max over prior N weeks (including itself),
-            # then index = 100 * (v - min) / (max - min).
-            window = COT_INDEX_WINDOW_WEEKS
+            # Rolling Williams COT on Commercial Long Ratio: for each row, find
+            # min/max over prior N weeks (including itself), then
+            # index = 100 * (v - min) / (max - min).
+            window = COT_INDEX_LOOKBACK_YEARS * 52
             for i, p in enumerate(parsed):
                 start = max(0, i - window + 1)
-                w = [q["_prod_long_oi"] for q in parsed[start:i + 1]]
+                w = [q["_comm_lr"] for q in parsed[start:i + 1]]
                 mn, mx = min(w), max(w)
                 if mx == mn:
                     p["cot_index"] = 50.0
                 else:
-                    p["cot_index"] = round(100 * (p["_prod_long_oi"] - mn) / (mx - mn), 2)
+                    p["cot_index"] = round(100 * (p["_comm_lr"] - mn) / (mx - mn), 2)
 
             for p in parsed:
-                p.pop("_prod_long_oi", None)
+                p.pop("_comm_lr", None)
 
             rows.extend(parsed)
             latest = parsed[-1]
