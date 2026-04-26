@@ -246,9 +246,12 @@ def run(full_backfill: bool = False, push: bool = False, limit: int = 0,
                 metadata_updates.append(row)
                 time.sleep(0.4 + random.uniform(0, 0.4))
             if push and metadata_updates:
-                for i in range(0, len(metadata_updates), 100):
-                    sb.table("etfs").upsert(metadata_updates[i:i+100],
-                                            on_conflict="ticker").execute()
+                # UPDATE per-ticker (not UPSERT) — UPSERT would fail on NOT NULL
+                # columns (name, returns_1y, etc.) that we're intentionally not
+                # touching here.
+                for row in metadata_updates:
+                    t = row.pop("ticker")
+                    sb.table("etfs").update(row).eq("ticker", t).execute()
                 print(f"[Supabase] metadata refresh: {len(metadata_updates)} rows updated")
 
     if full_backfill:
