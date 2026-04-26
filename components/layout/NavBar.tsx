@@ -7,6 +7,7 @@ import { theme } from '@/lib/theme';
 const LINKS = [
   { label: 'Metals', href: '/metals' as const },
   { label: 'Stocks', href: '/stocks' as const },
+  { label: 'ETFs', href: '/etfs' as const },
   { label: 'Credit', href: '/credit' as const },
 ];
 

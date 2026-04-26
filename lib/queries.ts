@@ -110,15 +110,24 @@ export async function fetchStocks(): Promise<Stock[]> {
 }
 
 export async function fetchAllEtfs(): Promise<Etf[]> {
-  // Pull all ETFs at once for client-side matching. Supabase's default cap is
-  // 1000 rows; our universe is ≤1000 so a single page suffices.
-  const { data, error } = await supabase
-    .from('etfs')
-    .select('ticker, name, expense_ratio, aum_usd, current_price, yoy_pct, returns_1y, last_close_date')
-    .order('aum_usd', { ascending: false, nullsFirst: false })
-    .limit(1000);
-  if (error) throw new Error(error.message);
-  return (data as Etf[]) ?? [];
+  // Universe is up to 2000 ETFs, but PostgREST caps a single page at 1000.
+  // Page through with explicit ranges.
+  const cols = 'ticker, name, expense_ratio, aum_usd, current_price, yoy_pct, returns_1y, last_close_date, category, pb_ratio';
+  const out: Etf[] = [];
+  for (let page = 0; page < 4; page++) {
+    const from = page * 1000;
+    const to = from + 999;
+    const { data, error } = await supabase
+      .from('etfs')
+      .select(cols)
+      .order('aum_usd', { ascending: false, nullsFirst: false })
+      .range(from, to);
+    if (error) throw new Error(error.message);
+    const rows = (data as Etf[]) ?? [];
+    out.push(...rows);
+    if (rows.length < 1000) break;
+  }
+  return out;
 }
 
 export type CreditData = {

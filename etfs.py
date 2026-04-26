@@ -55,6 +55,7 @@ def fetch_metadata(ticker: str, session) -> dict:
     """Best-effort info pull. Tolerates missing fields — yfinance returns
     empty dicts for some niche ETFs."""
     name, exp_ratio, aum = ticker, None, None
+    category, pb_ratio = None, None
     yh_ticker = ticker.replace(".", "-")
     for attempt in range(META_MAX_RETRIES + 1):
         try:
@@ -63,6 +64,8 @@ def fetch_metadata(ticker: str, session) -> dict:
             name = info.get("longName") or info.get("shortName") or ticker
             exp_ratio = info.get("annualReportExpenseRatio") or info.get("netExpenseRatio")
             aum = info.get("totalAssets")
+            category = info.get("category") or info.get("categoryName")
+            pb_ratio = info.get("priceToBook")
             break
         except Exception as e:
             if attempt < META_MAX_RETRIES:
@@ -71,7 +74,9 @@ def fetch_metadata(ticker: str, session) -> dict:
                 print(f"  [meta!] {ticker}: {e}", file=sys.stderr)
     return {"name": (name or ticker)[:200],
             "expense_ratio": _r(exp_ratio),
-            "aum_usd": int(aum) if isinstance(aum, (int, float)) and aum else None}
+            "aum_usd": int(aum) if isinstance(aum, (int, float)) and aum else None,
+            "category": (category or None)[:120] if category else None,
+            "pb_ratio": _r(pb_ratio)}
 
 
 def _r(v) -> float | None:
@@ -112,6 +117,9 @@ def make_new_row(ticker: str, closes: list[tuple[str, float]],
         "yoy_pct": _yoy_from_returns(rets),
         "returns_1y": rets,
         "last_close_date": last_date,
+        "category": fetched_meta.get("category"),
+        "pb_ratio": fetched_meta.get("pb_ratio"),
+        "metadata_at": date.today().isoformat(),
     }
 
 
@@ -155,7 +163,7 @@ def make_updated_row(ticker: str, prev: dict, closes: list[tuple[str, float]],
     rolled = (prev_returns + appended)[-RETURNS_LEN:]
     last_date, last_close = new_dated[-1]
     name = universe_meta.get("name") or prev.get("name") or ticker
-    return {
+    out = {
         "ticker": ticker,
         "name": name[:200],
         # preserve previously-fetched metadata; refreshed AUM from universe
@@ -166,32 +174,42 @@ def make_updated_row(ticker: str, prev: dict, closes: list[tuple[str, float]],
         "returns_1y": rolled,
         "last_close_date": last_date,
     }
+    # Preserve previously-fetched metadata fields if present (don't null them)
+    for k in ("category", "pb_ratio", "metadata_at"):
+        if prev.get(k) is not None:
+            out[k] = prev[k]
+    return out
 
 
 # ── Main pipeline ────────────────────────────────────────────────────────────
-def run(full_backfill: bool = False, push: bool = False, limit: int = 0) -> int:
+def run(full_backfill: bool = False, push: bool = False, limit: int = 0,
+        rank_from: int = 1, rank_to: int = 2000,
+        refresh_metadata_n: int = 0) -> int:
     sb = _sb()
     universe = sb.table("etf_universe").select(
         "ticker, name, aum_usd, rank_by_aum"
-    ).eq("is_active", True).order("rank_by_aum").execute().data or []
+    ).eq("is_active", True) \
+     .gte("rank_by_aum", rank_from).lte("rank_by_aum", rank_to) \
+     .order("rank_by_aum").execute().data or []
 
     if limit > 0:
         universe = universe[:limit]
     if not universe:
-        print("[etfs] etf_universe is empty — run etf_universe_scraper.py first.",
+        print(f"[etfs] etf_universe is empty for rank range [{rank_from}..{rank_to}].",
               file=sys.stderr)
         return 0
 
     universe_map = {r["ticker"]: r for r in universe}
-    tickers = list(universe_map.keys())[:1000]
-    print(f"[etfs] active universe: {len(tickers)} tickers")
+    tickers = list(universe_map.keys())
+    print(f"[etfs] active universe slice rank=[{rank_from}..{rank_to}]: "
+          f"{len(tickers)} tickers")
 
     existing_rows: list[dict] = []
     page = 0
     while True:
         chunk = sb.table("etfs").select(
             "ticker, returns_1y, last_close_date, current_price, name, "
-            "expense_ratio, aum_usd"
+            "expense_ratio, aum_usd, category, pb_ratio, metadata_at"
         ).in_("ticker", tickers).range(page * 1000, page * 1000 + 999).execute().data or []
         if not chunk:
             break
@@ -200,7 +218,38 @@ def run(full_backfill: bool = False, push: bool = False, limit: int = 0) -> int:
             break
         page += 1
     existing_map = {r["ticker"]: r for r in existing_rows}
-    print(f"[etfs] existing rows: {len(existing_map)}")
+    print(f"[etfs] existing rows in slice: {len(existing_map)}")
+
+    # ── 0. Metadata refresh (decoupled from price updates) ──────────────────
+    # Backfills category/pb_ratio for existing rows that are missing them.
+    # Capped per run to share rate budget with chart calls.
+    if refresh_metadata_n > 0:
+        missing = [t for t in tickers if t in existing_map and (
+            existing_map[t].get("category") is None
+            or existing_map[t].get("pb_ratio") is None
+        )]
+        targets = missing[:refresh_metadata_n]
+        if targets:
+            print(f"[etfs] refreshing metadata for {len(targets)} tickers "
+                  f"(of {len(missing)} missing) …")
+            meta_session = _new_session()
+            metadata_updates = []
+            for t in targets:
+                meta = fetch_metadata(t, meta_session)
+                row = {"ticker": t,
+                       "category": meta.get("category"),
+                       "pb_ratio": meta.get("pb_ratio"),
+                       "metadata_at": date.today().isoformat()}
+                # Also refresh expense_ratio if it was previously null
+                if existing_map[t].get("expense_ratio") is None and meta.get("expense_ratio"):
+                    row["expense_ratio"] = meta.get("expense_ratio")
+                metadata_updates.append(row)
+                time.sleep(0.4 + random.uniform(0, 0.4))
+            if push and metadata_updates:
+                for i in range(0, len(metadata_updates), 100):
+                    sb.table("etfs").upsert(metadata_updates[i:i+100],
+                                            on_conflict="ticker").execute()
+                print(f"[Supabase] metadata refresh: {len(metadata_updates)} rows updated")
 
     if full_backfill:
         # Treat tickers without complete returns_1y as still-needing-backfill.
@@ -300,9 +349,17 @@ def main():
                     help="Treat all universe tickers as new; fetch 2y of closes")
     ap.add_argument("--limit",          type=int, default=0,
                     help="Cap universe size for development")
+    ap.add_argument("--rank-from",      type=int, default=1,
+                    help="Process tickers with rank_by_aum >= this (default 1)")
+    ap.add_argument("--rank-to",        type=int, default=2000,
+                    help="Process tickers with rank_by_aum <= this (default 2000)")
+    ap.add_argument("--refresh-metadata", type=int, default=0,
+                    help="Backfill category/pb_ratio for up to N existing rows missing them")
     args = ap.parse_args()
 
-    n = run(full_backfill=args.full_backfill, push=args.push, limit=args.limit)
+    n = run(full_backfill=args.full_backfill, push=args.push, limit=args.limit,
+            rank_from=args.rank_from, rank_to=args.rank_to,
+            refresh_metadata_n=args.refresh_metadata)
     if not n:
         print("[etfs] no rows produced.")
 

@@ -19,7 +19,7 @@ from curl_cffi import requests as curl_requests
 # ── Config ────────────────────────────────────────────────────────────────────
 SCREENER_URL = "https://stockanalysis.com/etf/screener/"
 IMPERSONATE = "chrome124"
-TARGET_COUNT = 1000
+TARGET_COUNT = 2000
 SEED_CSV = os.path.join(os.path.dirname(__file__), "etf_universe_seed.csv")
 HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",

@@ -61,7 +61,7 @@ export function correlation(a: number[], b: number[]): { r: number; r2: number; 
 export function matchEtfs(
   filtered: Stock[],
   etfs: Etf[],
-  topN: number = 10,
+  topN: number | null = null,
 ): EtfMatch[] {
   const synth = buildSyntheticReturns(filtered);
   if (!synth) return [];
@@ -73,7 +73,7 @@ export function matchEtfs(
     scored.push({ etf, fitPct: Math.round(fitPct * 10) / 10 });
   }
   scored.sort((x, y) => y.fitPct - x.fitPct);
-  return scored.slice(0, topN);
+  return topN == null ? scored : scored.slice(0, topN);
 }
 
 export const MATCHING = { MIN_OVERLAP, MAX_LEN };

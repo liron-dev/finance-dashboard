@@ -21,18 +21,30 @@ export type Stock = {
 export type Etf = {
   ticker: string;
   name: string;
-  expense_ratio: number | null;
+  expense_ratio: number | null;     // percent units (0.0945 → 0.0945%)
   aum_usd: number | null;
   current_price: number;
   yoy_pct: number;
   returns_1y: number[];
   last_close_date: string;
+  category: string | null;          // Morningstar category, e.g. "Large Growth"
+  pb_ratio: number | null;
 };
 
 export type EtfMatch = {
   etf: Etf;
   fitPct: number;       // 0..100, R² × 100, clipped to 0 for inverse correlations
 };
+
+export type EtfFilterState = {
+  aumMin: number;        // millions of USD
+  terMax: number;        // percent (0.50 = 0.50%)
+  yoyMin: number;        // percent (10 = 10%)
+  sharpeMin: number;     // annualized; 1.0 = "good"
+  pbMax: number;         // P/B ratio
+};
+
+export type EtfPreset = 'HQ' | 'Value' | 'Growth' | 'Zombie' | 'Custom';
 
 export type MacroRow = {
   series_id: string;

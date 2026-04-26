@@ -10,11 +10,13 @@ import { theme } from '@/lib/theme';
 import type { EtfMatch, Stock } from '@/lib/types';
 import { EtfResultTable } from './EtfResultTable';
 
+const PAGE_SIZE = 10;
+
 type State =
   | { kind: 'idle' }
   | { kind: 'loading' }
-  | { kind: 'ready'; matches: EtfMatch[]; computeMs: number; stocksUsed: number; etfsScanned: number }
-  | { kind: 'stale'; matches: EtfMatch[]; stocksUsed: number; etfsScanned: number }
+  | { kind: 'ready'; matches: EtfMatch[]; visible: number; computeMs: number; stocksUsed: number; etfsScanned: number }
+  | { kind: 'stale'; matches: EtfMatch[]; visible: number; stocksUsed: number; etfsScanned: number }
   | { kind: 'error'; message: string };
 
 type Props = {
@@ -38,6 +40,7 @@ export function EtfMatchPanel({ filtered, filterHash, isMobile }: Props) {
         return {
           kind: 'stale',
           matches: prev.matches,
+          visible: prev.visible,
           stocksUsed: prev.stocksUsed,
           etfsScanned: prev.etfsScanned,
         };
@@ -58,11 +61,13 @@ export function EtfMatchPanel({ filtered, filterHash, isMobile }: Props) {
     const t0 = performance.now();
     try {
       const etfs = await fetchAllEtfs();
-      const matches = matchEtfs(filtered, etfs, 10);
+      // Compute ALL matches (no cap); UI paginates with PAGE_SIZE.
+      const matches = matchEtfs(filtered, etfs);
       lastHashRef.current = filterHash;
       setState({
         kind: 'ready',
         matches,
+        visible: PAGE_SIZE,
         computeMs: performance.now() - t0,
         stocksUsed: usableStockCount,
         etfsScanned: etfs.length,
@@ -70,6 +75,13 @@ export function EtfMatchPanel({ filtered, filterHash, isMobile }: Props) {
     } catch (e: any) {
       setState({ kind: 'error', message: String(e?.message ?? e) });
     }
+  };
+
+  const showMore = () => {
+    setState((prev) => {
+      if (prev.kind !== 'ready') return prev;
+      return { ...prev, visible: Math.min(prev.matches.length, prev.visible + PAGE_SIZE) };
+    });
   };
 
   const disabled = usableStockCount < 3;
@@ -119,31 +131,46 @@ export function EtfMatchPanel({ filtered, filterHash, isMobile }: Props) {
         </View>
       )}
 
-      {(state.kind === 'ready' || state.kind === 'stale') && (
-        <>
-          <Text style={styles.basis}>
-            <Text style={styles.basisStrong}>{state.matches.length}</Text>
-            <Text style={styles.basisMuted}>
-              {' '}top matches • weighted across{' '}
-            </Text>
-            <Text style={styles.basisStrong}>{state.stocksUsed}</Text>
-            <Text style={styles.basisMuted}> stocks vs. </Text>
-            <Text style={styles.basisStrong}>{state.etfsScanned}</Text>
-            <Text style={styles.basisMuted}> ETFs</Text>
-            {state.kind === 'ready' && state.computeMs ? (
+      {(state.kind === 'ready' || state.kind === 'stale') && (() => {
+        const visibleMatches = state.matches.slice(0, state.visible);
+        const remaining = state.matches.length - state.visible;
+        const canShowMore = state.kind === 'ready' && remaining > 0;
+        return (
+          <>
+            <Text style={styles.basis}>
+              <Text style={styles.basisStrong}>{visibleMatches.length}</Text>
               <Text style={styles.basisMuted}>
-                {' '}• {(state.computeMs / 1000).toFixed(1)}s
+                {' '}/ {state.matches.length} matches • weighted across{' '}
               </Text>
-            ) : null}
-          </Text>
-          <EtfResultTable
-            matches={state.matches}
-            isMobile={isMobile}
-            stale={state.kind === 'stale'}
-            rerun={state.kind === 'stale' ? onPress : undefined}
-          />
-        </>
-      )}
+              <Text style={styles.basisStrong}>{state.stocksUsed}</Text>
+              <Text style={styles.basisMuted}> stocks vs. </Text>
+              <Text style={styles.basisStrong}>{state.etfsScanned}</Text>
+              <Text style={styles.basisMuted}> ETFs</Text>
+              {state.kind === 'ready' && state.computeMs ? (
+                <Text style={styles.basisMuted}>
+                  {' '}• {(state.computeMs / 1000).toFixed(1)}s
+                </Text>
+              ) : null}
+            </Text>
+            <EtfResultTable
+              matches={visibleMatches}
+              isMobile={isMobile}
+              stale={state.kind === 'stale'}
+              rerun={state.kind === 'stale' ? onPress : undefined}
+            />
+            {canShowMore && (
+              <View style={styles.showMoreWrap}>
+                <Button
+                  label={`Show 10 more (${remaining} remaining)`}
+                  onPress={showMore}
+                  variant="secondary"
+                  fullWidth={isMobile}
+                />
+              </View>
+            )}
+          </>
+        );
+      })()}
     </Card>
   );
 }
@@ -166,4 +193,8 @@ const styles = StyleSheet.create({
   },
   basisStrong: { color: theme.yellow, fontWeight: '700' },
   basisMuted: { color: theme.textMuted },
+  showMoreWrap: {
+    marginTop: theme.spacing.md,
+    alignItems: 'center',
+  },
 });
