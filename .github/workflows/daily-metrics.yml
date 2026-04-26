@@ -8,16 +8,16 @@ on:
     # For closing prices, change to:  cron: '0 21 * * 1-5'
     - cron: '0 15 * * 1-5'
   workflow_dispatch: # manual trigger button in GitHub UI
-    inputs:
-      backfill:
-        description: 'Run one-time ETF + stock 1y backfill (full-backfill mode)'
-        type: boolean
-        default: false
+
+# Don't stack with the ETF workflow — they share Yahoo's per-IP rate budget.
+concurrency:
+  group: yfinance-pool
+  cancel-in-progress: false
 
 jobs:
   fetch-and-push:
     runs-on: ubuntu-latest
-    timeout-minutes: 60   # ETF backfill can take ~20 min on day 1
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -27,13 +27,6 @@ jobs:
           cache: 'pip'
 
       - run: pip install -r requirements.txt
-
-      - name: Refresh ETF universe (top 1000 by AUM)
-        run: python etf_universe_scraper.py --push
-        continue-on-error: true
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 
       - name: Fetch S&P 500 metrics (incl. market_cap + returns_1y)
         run: python script.py --push
@@ -55,21 +48,6 @@ jobs:
 
       - name: Fetch COMEX inventory
         run: python comex.py --push
-        continue-on-error: true
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-
-      - name: Cooldown (before ETF batch)
-        run: sleep 60
-
-      - name: Refresh ETFs (incremental, or full-backfill if requested)
-        run: |
-          if [ "${{ inputs.backfill }}" = "true" ]; then
-            python etfs.py --push --full-backfill
-          else
-            python etfs.py --push
-          fi
         continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

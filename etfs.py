@@ -21,17 +21,21 @@ from datetime import date
 import yfinance as yf
 from curl_cffi import requests as curl_requests
 
-from yf_batch import batched_download, compute_simple_returns, _new_session
+from yf_batch import batched_download, compute_simple_returns, _new_session, was_rate_limited
 import retention
 
 # ── Config ────────────────────────────────────────────────────────────────────
-MAX_NEW_PER_RUN = 50          # cap new-ticker backfills per daily run
-RETURNS_LEN = 252             # rolling window length
-INCREMENTAL_PERIOD = "10d"    # generous window so missed runs still recover
-BACKFILL_PERIOD = "2y"        # need >= 1y; 2y gives buffer for trading-day count
-INCREMENTAL_CHUNK = 100
-INCREMENTAL_SLEEP = 2.0
-BACKFILL_CHUNK = 50
+# yfinance rate limit is ~2000 req/hr/IP. Each ticker = 1 chart request.
+# Caps below assume etfs.py runs in a workflow that's NOT stacked with
+# script.py on the same IP — see daily-etfs.yml.
+MAX_NEW_PER_RUN = 50           # incremental daily: backfill up to 50 new tickers
+MAX_FULL_BACKFILL = 200        # --full-backfill: cap at 200/run (5 runs = 1000)
+RETURNS_LEN = 252              # rolling window length
+INCREMENTAL_PERIOD = "10d"     # generous window so missed runs still recover
+BACKFILL_PERIOD = "2y"         # need >= 1y; 2y gives buffer for trading-day count
+INCREMENTAL_CHUNK = 50         # smaller chunks → gentler on rate limit
+INCREMENTAL_SLEEP = 3.0        # 3s + 0..1.5s jitter between chunks
+BACKFILL_CHUNK = 25
 BACKFILL_SLEEP = 4.0
 META_RETRY_DELAY = 1.5
 META_MAX_RETRIES = 1
@@ -199,7 +203,20 @@ def run(full_backfill: bool = False, push: bool = False, limit: int = 0) -> int:
     print(f"[etfs] existing rows: {len(existing_map)}")
 
     if full_backfill:
-        new_tickers, update_tickers = tickers, []
+        # Treat tickers without complete returns_1y as still-needing-backfill.
+        # This lets us split a 1000-ticker backfill across multiple workflow runs.
+        needs_backfill = [
+            t for t in tickers
+            if t not in existing_map
+            or not existing_map[t].get("returns_1y")
+            or len(existing_map[t]["returns_1y"]) < 200
+        ]
+        # Cap per-run so we stay under Yahoo's per-IP rate limit
+        new_tickers = needs_backfill[:MAX_FULL_BACKFILL]
+        update_tickers = []
+        print(f"[etfs] full-backfill mode: {len(needs_backfill)} tickers need "
+              f"backfill; processing {len(new_tickers)} this run "
+              f"(MAX_FULL_BACKFILL={MAX_FULL_BACKFILL})")
     else:
         new_tickers = [t for t in tickers if t not in existing_map]
         update_tickers = [t for t in tickers if t in existing_map]
@@ -216,14 +233,20 @@ def run(full_backfill: bool = False, push: bool = False, limit: int = 0) -> int:
             chunk_size=INCREMENTAL_CHUNK,
             sleep_between=INCREMENTAL_SLEEP,
         )
+        rate_hit = was_rate_limited(fetched)
         print(f"  fetched {len(fetched)}/{len(update_tickers)} "
-              f"in {time.monotonic()-t0:.0f}s")
+              f"in {time.monotonic()-t0:.0f}s"
+              + (" (rate-limited; partial result preserved)" if rate_hit else ""))
         for t in update_tickers:
             row = make_updated_row(t, existing_map[t], fetched.get(t, []),
                                    universe_map[t])
             if row is not None:
                 upserts.append(row)
         print(f"  → {len(upserts)} rows with new closes")
+        # If we hit the rate limit, skip the new-ticker backfill — it'd just fail.
+        if rate_hit:
+            print("[etfs] skipping new-ticker backfill due to rate limit")
+            new_tickers = []
 
     # ── 2. Backfill for new tickers ─────────────────────────────────────────
     capped_new = new_tickers if full_backfill else new_tickers[:MAX_NEW_PER_RUN]
@@ -237,8 +260,10 @@ def run(full_backfill: bool = False, push: bool = False, limit: int = 0) -> int:
             chunk_size=BACKFILL_CHUNK,
             sleep_between=BACKFILL_SLEEP,
         )
+        rate_hit = was_rate_limited(bf)
         print(f"  fetched {len(bf)}/{len(capped_new)} "
-              f"in {time.monotonic()-t0:.0f}s")
+              f"in {time.monotonic()-t0:.0f}s"
+              + (" (rate-limited; partial result preserved)" if rate_hit else ""))
 
         meta_session = _new_session()
         added = 0

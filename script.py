@@ -11,8 +11,6 @@ from io import StringIO
 
 import pandas as pd, requests, yfinance as yf
 
-from yf_batch import batched_download, compute_simple_returns
-
 # ── Config ────────────────────────────────────────────────────────────────────
 WORKERS, MAX_RETRIES, RETRY_DELAY = 4, 2, 3
 BATCH_SIZE, BATCH_PAUSE = 50, 3  # pause 3s every 50 tickers to avoid rate limits
@@ -20,7 +18,9 @@ METRIC_COLS = ["price", "gross_margin", "roic", "fcf_margin", "int_coverage", "p
 MIN_SUCCESS_RATE = 0.90  # only replace DB data if ≥90% of tickers succeeded
 EST_INTEREST_RATE = 0.05   # fallback rate when interest data missing but debt exists
 INT_COV_CAP = 999.99       # cap for debt-free companies
-RETURNS_LEN = 252          # window for ETF-matching feature
+# Note: returns_1y is NOT fetched here — it lives in stock_returns.py which
+# runs in the daily-etfs workflow (separate runner IP) to keep this script's
+# yfinance footprint within Yahoo's per-IP rate budget.
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def _first(stmt: pd.DataFrame | None, *keys: str) -> float | None:
@@ -197,24 +197,7 @@ def _sb():
     if not url or not key: sys.exit("[error] Set SUPABASE_URL and SUPABASE_KEY env vars.")
     return create_client(url, key)
 
-def fetch_returns_1y(tickers: list[str]) -> dict[str, list[float]]:
-    """Batched 2y close download → 252-day simple returns per ticker.
-    Failures are silent; missing tickers are simply absent from the result.
-    Adds ~30-60s to script.py runtime; one batched HTTP call per chunk."""
-    print(f"\nFetching returns for {len(tickers)} tickers (batched) …", flush=True)
-    t0 = time.monotonic()
-    raw = batched_download(tickers, period="2y", chunk_size=100, sleep_between=2.0)
-    out: dict[str, list[float]] = {}
-    for t, dated in raw.items():
-        closes = [c for _, c in dated]
-        rets = compute_simple_returns(closes)[-RETURNS_LEN:]
-        if len(rets) >= 60:
-            out[t] = rets
-    print(f"  → returns ready for {len(out)}/{len(tickers)} tickers "
-          f"in {time.monotonic()-t0:.0f}s", flush=True)
-    return out
-
-def push_metrics(df: pd.DataFrame, returns_map: dict[str, list[float]]) -> None:
+def push_metrics(df: pd.DataFrame) -> None:
     sb = _sb()
     valid = df.dropna(subset=METRIC_COLS, how="all")
     total, success = len(df), len(valid)
@@ -229,6 +212,23 @@ def push_metrics(df: pd.DataFrame, returns_map: dict[str, list[float]]) -> None:
         print("[Supabase] Nothing to push (all tickers failed).", file=sys.stderr)
         return
 
+    # Preserve existing returns_1y before delete+insert wipes it. stock_returns.py
+    # (in daily-etfs workflow) refreshes this column separately; we just preserve.
+    prior_returns: dict[str, list[float]] = {}
+    try:
+        page = 0
+        while True:
+            chunk = sb.table("stocks").select("ticker, returns_1y") \
+                      .range(page * 1000, page * 1000 + 999).execute().data or []
+            for r in chunk:
+                if r.get("returns_1y"):
+                    prior_returns[r["ticker"]] = r["returns_1y"]
+            if len(chunk) < 1000:
+                break
+            page += 1
+    except Exception as e:
+        print(f"[warn] couldn't preload prior returns_1y: {e}", file=sys.stderr)
+
     # Build records (NaN → None for JSON-safe serialization)
     today = date.today().isoformat()
     records = []
@@ -240,7 +240,8 @@ def push_metrics(df: pd.DataFrame, returns_map: dict[str, list[float]]) -> None:
             rec[col] = float(v) if pd.notna(v) else None
         mc = r.get("market_cap")
         rec["market_cap"] = int(mc) if pd.notna(mc) and mc else None
-        rec["returns_1y"] = returns_map.get(r["ticker"])  # list[float] or None
+        # Carry forward existing returns_1y (refreshed by stock_returns.py separately)
+        rec["returns_1y"] = prior_returns.get(r["ticker"])
         records.append(rec)
 
     # Replace: delete old data, then insert new
@@ -248,10 +249,10 @@ def push_metrics(df: pd.DataFrame, returns_map: dict[str, list[float]]) -> None:
     # Insert in chunks (returns_1y arrays inflate row size; 100/chunk is safe)
     for i in range(0, len(records), 100):
         sb.table("stocks").insert(records[i:i+100]).execute()
-    n_with_ret = sum(1 for r in records if r.get("returns_1y"))
-    n_with_mc  = sum(1 for r in records if r.get("market_cap"))
+    n_kept  = sum(1 for r in records if prior_returns.get(r["ticker"]))
+    n_with_mc = sum(1 for r in records if r.get("market_cap"))
     print(f"[Supabase] Replaced table with {len(records)} rows ({today}). "
-          f"market_cap={n_with_mc}, returns_1y={n_with_ret}.")
+          f"market_cap={n_with_mc}, returns_1y preserved: {n_kept}.")
 
 # ── 7. Entry point ───────────────────────────────────────────────────────────
 def main() -> None:
@@ -270,15 +271,8 @@ def main() -> None:
     df = build_df(tickers, sectors)
     print_table(df)
 
-    # Returns for ETF-matching feature (graceful: failures don't block fundamentals push)
-    returns_map: dict[str, list[float]] = {}
-    try:
-        returns_map = fetch_returns_1y(tickers)
-    except Exception as e:
-        print(f"[warn] returns batch failed: {e}", file=sys.stderr)
-
     if args.push:
-        push_metrics(df, returns_map)
+        push_metrics(df)
     if int(df[METRIC_COLS].notna().any(axis=1).sum()) == 0:
         print("\n[FATAL] All tickers failed.", file=sys.stderr); sys.exit(1)
 

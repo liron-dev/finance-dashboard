@@ -1,0 +1,65 @@
+name: Daily ETF Refresh
+
+# Runs 2 hours after daily-metrics.yml so it gets a fresh GitHub Actions runner
+# (different IP) — prevents stacking yfinance load past Yahoo's ~2k/hr/IP cap.
+on:
+  schedule:
+    - cron: '0 17 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      backfill:
+        description: 'Run --full-backfill (200 tickers/run cap; 5 runs covers 1000)'
+        type: boolean
+        default: false
+
+# Mutex with daily-metrics: same Yahoo IP budget.
+concurrency:
+  group: yfinance-pool
+  cancel-in-progress: false
+
+jobs:
+  refresh-etfs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - run: pip install -r requirements.txt
+
+      - name: Refresh ETF universe (top 1000 by AUM)
+        run: python etf_universe_scraper.py --push
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: Refresh ETFs (incremental, or full-backfill if requested)
+        run: |
+          if [ "${{ inputs.backfill }}" = "true" ]; then
+            python etfs.py --push --full-backfill
+          else
+            python etfs.py --push
+          fi
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: Cooldown between yfinance batches
+        run: sleep 30
+
+      - name: Refresh stock returns_1y
+        run: |
+          if [ "${{ inputs.backfill }}" = "true" ]; then
+            python stock_returns.py --push --full-backfill
+          else
+            python stock_returns.py --push
+          fi
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}

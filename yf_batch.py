@@ -7,11 +7,31 @@ TLS-fingerprint exposure to Yahoo's bot detection.
 
 Returns dates alongside closes so callers can splice incrementally without
 guessing trading-day calendars.
+
+Rate-limit handling: Yahoo throttles to ~2000 req/hr/IP. When we detect a
+429-class response (raised as YFRateLimitError by yfinance ≥0.2.50) we
+**abort** the rest of the loop — re-trying immediately makes things worse.
+Callers see a partial result dict and can decide whether to retry next run.
 """
 import random, sys, time
 
 import yfinance as yf
 from curl_cffi import requests as curl_requests
+
+
+# yfinance's rate-limit class lives under yfinance.exceptions. Older versions
+# don't have it; fall back to detecting "Rate limited" in the error string.
+try:
+    from yfinance.exceptions import YFRateLimitError as _YFRate
+except Exception:  # pragma: no cover
+    _YFRate = None
+
+
+def _is_rate_limit(exc: Exception) -> bool:
+    if _YFRate is not None and isinstance(exc, _YFRate):
+        return True
+    msg = str(exc).lower()
+    return "too many requests" in msg or "rate limited" in msg or "429" in msg
 
 
 def _new_session(impersonate: str = "chrome124"):
@@ -41,6 +61,7 @@ def batched_download(
     yahoo = [t.replace(".", "-") for t in tickers]
     yahoo_to_orig = {y: o for y, o in zip(yahoo, tickers)}
 
+    rate_limited = False
     for i in range(0, len(yahoo), chunk_size):
         chunk = yahoo[i : i + chunk_size]
         try:
@@ -54,12 +75,26 @@ def batched_download(
                 group_by="ticker",     # always MultiIndex (ticker, field)
             )
         except Exception as e:
+            if _is_rate_limit(e):
+                print(f"  [yf_batch] RATE LIMITED at chunk {i}; aborting "
+                      f"({len(out)} tickers fetched so far)", file=sys.stderr)
+                rate_limited = True
+                break
             print(f"  [yf_batch] chunk {i}-{i+len(chunk)} failed: {e}", file=sys.stderr)
             time.sleep(sleep_between + random.uniform(0, 1.5))
             continue
 
         if df is None or df.empty:
+            # Empty result with no exception is sometimes a soft rate-limit signal
+            # from Yahoo (chart endpoint silently returns no data). Track and bail
+            # if we see two empties in a row at the start.
             print(f"  [yf_batch] chunk {i}-{i+len(chunk)} returned empty", file=sys.stderr)
+            if i == 0 and len(out) == 0:
+                # First chunk empty → abort; almost certainly rate-limited or DNS issue
+                print(f"  [yf_batch] first chunk empty — aborting to avoid wasted retries",
+                      file=sys.stderr)
+                rate_limited = True
+                break
             time.sleep(sleep_between + random.uniform(0, 1.5))
             continue
 
@@ -84,7 +119,16 @@ def batched_download(
         if i + chunk_size < len(yahoo):
             time.sleep(sleep_between + random.uniform(0, 1.5))
 
+    if rate_limited:
+        # Tag the dict so callers can detect partial result. Sentinel key is
+        # an empty string which is never a valid ticker.
+        out[""] = "rate_limited"  # type: ignore
     return out
+
+
+def was_rate_limited(result: dict) -> bool:
+    """Check if a batched_download() result was truncated by rate limiting."""
+    return result.pop("", None) == "rate_limited"
 
 
 def compute_simple_returns(closes: list[float]) -> list[float]:
