@@ -8,8 +8,13 @@ import type { EtfMatch } from '@/lib/types';
 const fitColor = (fit: number): string =>
   fit >= 80 ? theme.green : fit >= 50 ? theme.amber : theme.red;
 
-const formatTer = (er: number | null): string =>
-  er == null || !isFinite(er) ? '—' : `${(er * 100).toFixed(2)}%`;
+// yfinance returns expense_ratio in percent units already (e.g. SPY = 0.0945
+// means 0.0945%, not 9.45%), so we don't multiply by 100. Show extra digit
+// for ultra-low-cost ETFs (≤0.1%).
+const formatTer = (er: number | null): string => {
+  if (er == null || !isFinite(er)) return '—';
+  return er < 0.1 ? `${er.toFixed(3)}%` : `${er.toFixed(2)}%`;
+};
 
 type Props = {
   matches: EtfMatch[];
