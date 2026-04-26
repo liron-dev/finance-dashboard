@@ -31,3 +31,26 @@ export function sharpeFromReturns(rets: number[] | null, annualRf = 0.04): numbe
 export function etfSharpe(etf: Etf): number | null {
   return sharpeFromReturns(etf.returns_1y);
 }
+
+/** Annualized volatility (std-dev × √252) as a decimal (0.15 = 15%).
+ *  100% coverage on our universe (every ETF has ≥60 days of returns).
+ *  Bonds ≈ 2-8%, broad equity ≈ 10-15%, tech ≈ 20-30%, leveraged ETFs > 50%. */
+export function volatilityFromReturns(rets: number[] | null): number | null {
+  if (!rets || rets.length < MIN_RETURNS) return null;
+  const n = rets.length;
+  let sum = 0;
+  for (let i = 0; i < n; i++) sum += rets[i];
+  const mean = sum / n;
+  let varSum = 0;
+  for (let i = 0; i < n; i++) {
+    const d = rets[i] - mean;
+    varSum += d * d;
+  }
+  const variance = varSum / (n - 1);
+  if (variance <= 0) return null;
+  return Math.sqrt(variance) * Math.sqrt(TRADING_DAYS);
+}
+
+export function etfVolatility(etf: Etf): number | null {
+  return volatilityFromReturns(etf.returns_1y);
+}

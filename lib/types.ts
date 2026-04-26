@@ -41,7 +41,7 @@ export type EtfFilterState = {
   terMax: number;        // percent (0.50 = 0.50%)
   yoyMin: number;        // percent (10 = 10%)
   sharpeMin: number;     // annualized; 1.0 = "good"
-  pbMax: number;         // P/B ratio
+  volMax: number;        // annualized volatility as decimal (0.20 = 20%)
 };
 
 export type EtfPreset = 'HQ' | 'Value' | 'Growth' | 'Zombie' | 'Custom';

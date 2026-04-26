@@ -14,7 +14,7 @@ import {
   applyEtfFilter,
   detectEtfPreset,
 } from '@/lib/filters';
-import { etfSharpe } from '@/lib/etf_compute';
+import { etfSharpe, etfVolatility } from '@/lib/etf_compute';
 import { theme } from '@/lib/theme';
 import { formatBigNum, formatSignedPct, formatUsd } from '@/lib/format';
 import type { Etf, EtfFilterState, EtfPreset } from '@/lib/types';
@@ -25,7 +25,7 @@ type SortKey =
   | 'expense_ratio'
   | 'yoy_pct'
   | 'sharpe'
-  | 'pb_ratio'
+  | 'volatility'
   | 'current_price';
 type SortDir = 'asc' | 'desc';
 
@@ -54,10 +54,14 @@ export default function Etfs() {
     setPreset(detectEtfPreset(next));
   };
 
-  // Pre-compute Sharpe so the table can sort by it without recomputing.
+  // Pre-compute Sharpe and volatility so the table can sort by them.
   const enriched = useMemo(() => {
     if (!all) return [];
-    return all.map((e) => ({ ...e, _sharpe: etfSharpe(e) }));
+    return all.map((e) => ({
+      ...e,
+      _sharpe: etfSharpe(e),
+      _vol: etfVolatility(e),
+    }));
   }, [all]);
 
   const filtered = useMemo(() => {
@@ -70,6 +74,9 @@ export default function Etfs() {
       if (sortKey === 'sharpe') {
         av = a._sharpe ?? -Infinity;
         bv = b._sharpe ?? -Infinity;
+      } else if (sortKey === 'volatility') {
+        av = a._vol ?? Infinity;     // lower vol = "better" → put nulls last
+        bv = b._vol ?? Infinity;
       } else {
         av = a[sortKey];
         bv = b[sortKey];
@@ -150,13 +157,13 @@ export default function Etfs() {
             format={(v) => v.toFixed(1)}
           />
           <RangeSlider
-            label="P/B Ratio ≤"
+            label="Volatility ≤"
             min={0}
-            max={20}
-            step={0.5}
-            value={filters.pbMax}
-            onChange={(v) => onFilter({ pbMax: v })}
-            format={(v) => v.toFixed(1)}
+            max={1}
+            step={0.01}
+            value={filters.volMax}
+            onChange={(v) => onFilter({ volMax: v })}
+            format={(v) => `${(v * 100).toFixed(0)}%`}
           />
         </Card>
       )}
@@ -234,13 +241,20 @@ function HeaderRow({
       {hcell('expense_ratio', 'TER', styles.colNum, 'right')}
       {hcell('yoy_pct', 'YoY', styles.colNum, 'right')}
       {hcell('sharpe', 'Sharpe', styles.colNum, 'right')}
-      {hcell('pb_ratio', 'P/B', styles.colNum, 'right')}
+      {hcell('volatility', 'Vol', styles.colNum, 'right')}
     </View>
   );
 }
 
-function Row({ etf, isMobile }: { etf: Etf & { _sharpe: number | null }; isMobile: boolean }) {
+function Row({
+  etf,
+  isMobile,
+}: {
+  etf: Etf & { _sharpe: number | null; _vol: number | null };
+  isMobile: boolean;
+}) {
   const sh = etf._sharpe;
+  const vol = etf._vol;
   const ter = etf.expense_ratio;
   const terDisp =
     ter == null
@@ -272,7 +286,9 @@ function Row({ etf, isMobile }: { etf: Etf & { _sharpe: number | null }; isMobil
       <Text style={[styles.td, styles.colNum, { color: sharpeColor(sh) }]}>
         {sh == null ? '—' : sh.toFixed(2)}
       </Text>
-      <Text style={[styles.td, styles.colNum]}>{etf.pb_ratio == null ? '—' : etf.pb_ratio.toFixed(1)}</Text>
+      <Text style={[styles.td, styles.colNum, { color: volColor(vol) }]}>
+        {vol == null ? '—' : `${(vol * 100).toFixed(1)}%`}
+      </Text>
     </View>
   );
 }
@@ -281,6 +297,14 @@ const sharpeColor = (s: number | null): string => {
   if (s == null) return theme.textMuted;
   if (s >= 1) return theme.green;
   if (s >= 0) return theme.amber;
+  return theme.red;
+};
+
+// Lower volatility = "calmer / safer" → green; high vol → red.
+const volColor = (v: number | null): string => {
+  if (v == null) return theme.textMuted;
+  if (v < 0.15) return theme.green;
+  if (v < 0.30) return theme.amber;
   return theme.red;
 };
 
