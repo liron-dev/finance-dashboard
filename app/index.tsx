@@ -25,12 +25,15 @@ export default function Home() {
   };
   useEffect(load, []);
 
-  const cols = width < theme.breakpoints.sm ? 1 : width < theme.breakpoints.lg ? 2 : 3;
+  // 4 snapshot cards: 1 col on mobile, 2 on tablet, 4 on desktop.
+  const cols = width < theme.breakpoints.sm ? 1 : width < theme.breakpoints.lg ? 2 : 4;
   const cardWidth = `${100 / cols - 2}%` as any;
 
   const goldCotVal = data?.goldCot?.cot_index ?? null;
   const hyBps = data?.hySpread ? data.hySpread.value * 100 : null;
   const hqCount = data ? applyFilter(data.stocks, PRESETS.HQ, 'HQ').length : null;
+  const etfHqCount = data?.etfHqCount ?? null;
+  const etfTotal = data?.etfTotal ?? null;
 
   return (
     <PageShell>
@@ -53,6 +56,7 @@ export default function Home() {
         <ErrorCard label="snapshot" message={err} onRetry={load} />
       ) : !data ? (
         <View style={[styles.grid, { gap: theme.spacing.md }]}>
+          <View style={{ width: cardWidth }}><SkeletonCard /></View>
           <View style={{ width: cardWidth }}><SkeletonCard /></View>
           <View style={{ width: cardWidth }}><SkeletonCard /></View>
           <View style={{ width: cardWidth }}><SkeletonCard /></View>
@@ -85,6 +89,24 @@ export default function Home() {
                   <Text style={styles.bigLabel}>Stocks pass HQ preset</Text>
                   <Text style={styles.small}>
                     Gross ≥ 40% · ROIC ≥ 15% · FCF ≥ 10% · P/E ≤ 30
+                  </Text>
+                </View>
+              ) : (
+                <Text style={styles.empty}>No data</Text>
+              )}
+            </Card>
+          </Link>
+
+          <Link href="/etfs" style={{ width: cardWidth, textDecorationLine: 'none' } as any}>
+            <Card title="ETFs" subtitle="Quality filter (top 2000)">
+              {etfHqCount != null ? (
+                <View>
+                  <Text style={[styles.bigNum, { color: theme.yellow }]}>{etfHqCount}</Text>
+                  <Text style={styles.bigLabel}>
+                    {etfTotal ? `ETFs of ${etfTotal} look HQ` : 'ETFs look HQ'}
+                  </Text>
+                  <Text style={styles.small}>
+                    AUM ≥ $1B · TER ≤ 0.20% · YoY ≥ 0%
                   </Text>
                 </View>
               ) : (
@@ -136,8 +158,10 @@ export default function Home() {
         </Text>
         <Text style={[styles.body, { marginTop: theme.spacing.sm }]}>
           Metals shows where the smart money is positioned in gold and silver. Stocks lets you filter the S&P 500
-          by institutional quality metrics. Credit tracks money-printing and credit-stress gauges that lead
-          recessions by months. Tap any card to dive in.
+          by institutional quality metrics. ETFs lets you filter the top 2000 US funds by AUM, fees,
+          momentum, Sharpe and volatility — and on the Stocks page you can find ETFs that match a custom
+          stock filter. Credit tracks money-printing and credit-stress gauges that lead recessions by
+          months. Tap any card to dive in.
         </Text>
       </Card>
     </PageShell>

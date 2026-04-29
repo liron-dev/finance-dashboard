@@ -15,11 +15,13 @@ export type HomeData = {
   goldCot: CotRow | null;
   hySpread: MacroRow | null;
   stocks: Stock[];
+  etfHqCount: number | null;     // ETFs ≥ $1B AUM, TER ≤ 0.20%, YoY ≥ 0%
+  etfTotal: number | null;
   latestDate: string | null;
 };
 
 export async function fetchHomeSnapshot(): Promise<HomeData> {
-  const [cotRes, hyRes, stocksRes] = await Promise.all([
+  const [cotRes, hyRes, stocksRes, etfHqRes, etfTotalRes] = await Promise.all([
     supabase
       .from('cot_positioning')
       .select('*')
@@ -39,6 +41,19 @@ export async function fetchHomeSnapshot(): Promise<HomeData> {
       .from('stocks')
       .select('ticker, name, sector, price, gross_margin, roic, fcf_margin, int_coverage, pe_ratio, updated_at')
       .gt('price', 0),
+    // Server-side counts — no row payload, just a count header.
+    // HQ-ish approximation: large, cheap, positive YoY. The full HQ preset
+    // also requires Sharpe ≥ 0.5 and Vol ≤ 20% (computed client-side from
+    // returns_1y), so /etfs HQ will show fewer matches than this.
+    supabase
+      .from('etfs')
+      .select('*', { count: 'exact', head: true })
+      .gte('aum_usd', 1_000_000_000)
+      .or('expense_ratio.is.null,expense_ratio.lte.0.20')
+      .gte('yoy_pct', 0),
+    supabase
+      .from('etfs')
+      .select('*', { count: 'exact', head: true }),
   ]);
 
   const dates = [
@@ -52,6 +67,8 @@ export async function fetchHomeSnapshot(): Promise<HomeData> {
     goldCot: (cotRes.data as CotRow) ?? null,
     hySpread: (hyRes.data as MacroRow) ?? null,
     stocks: (stocksRes.data as Stock[]) ?? [],
+    etfHqCount: etfHqRes.count ?? null,
+    etfTotal: etfTotalRes.count ?? null,
     latestDate,
   };
 }
